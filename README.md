@@ -1,6 +1,17 @@
-# angularJS-socketIO
-AngularJS &amp; Socket.IO (code provided by tutsplus.com)
+# Insights
 
-Code from:
+Asana id and project hardcoded currently. To test:
 
-http://webcache.googleusercontent.com/search?q=cache:code.tutsplus.com/tutorials/more-responsive-single-page-applications-with-angularjs-socketio-creating-the-library--cms-21738
+`$ nodemon app.js`
+
+Then go to Asana and login:
+
+`keenahn@invisible.email`
+`1v9r65I398iSNPm`
+
+Go to the "Buckets" project and start adding tasks
+
+## TODO
+1. Clean all the things!
+
+
