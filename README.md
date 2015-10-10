@@ -4,7 +4,7 @@ Currently, this is a proof of concept
 
 ```
 $ npm install
-$ nodemon app.js
+$ node app.js
 ```
 
 Open localhost:8080 in your browser
