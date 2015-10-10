@@ -4,7 +4,7 @@ Currently, this is a proof of concept
 
 ```
 $ npm install
-$ node app.js
+$ node server.js
 ```
 
 Open localhost:8080 in your browser

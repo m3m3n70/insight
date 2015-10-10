@@ -9,7 +9,7 @@ var projectId = 52963906013475;
 var client = asana.Client.create().useBasicAuth(apiKey);
 var taskCollection = [];
 
-app.use(express.static(__dirname));
+app.use(express.static(__dirname + "/public"));
 
 server.listen(8080, function(){
   console.log('Listening at port 8080');
