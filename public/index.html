@@ -2,9 +2,11 @@
 <html>
   <head>
     <script src="vendor/angular-1.4.7.min.js"></script>
+    <script src="vendor/angular-animate-1.4.7.min.js"></script>
     <script src="vendor/socket.io-1.3.7.js"></script>
     <script src="shared/angular-socket.js"></script>
     <script src="app.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <div ng-app="myApp" ng-controller="mainController">
@@ -14,6 +16,17 @@
         <li ng-repeat="task in tasks">
           {{ task.name }}
         </li>
+
+<!--       <li class="cube show-bottom" ng-repeat="task in tasks">
+        <figure class="front">{{ task.name }}</figure>
+        <figure class="back"></figure>
+        <figure class="right"></figure>
+        <figure class="left"></figure>
+        <figure class="top"></figure>
+        <figure class="bottom"></figure>
+      </li> -->
+
+
       </ul>
 
 

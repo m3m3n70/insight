@@ -1,4 +1,4 @@
-var app = angular.module('myApp', [ 'socket.io' ]);
+var app = angular.module('myApp', [ 'socket.io', 'ngAnimate' ]);
 
 app.config(function ($socketProvider) {
   $socketProvider.setConnectionUrl('http://localhost:8080');
