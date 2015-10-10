@@ -4,7 +4,9 @@ app.config(function ($socketProvider) {
   $socketProvider.setConnectionUrl('http://localhost:8080');
 });
 
-app.controller('Ctrl', function Ctrl($scope, $socket) {
+
+
+var mainController = function ($scope, $timeout, $socket) {
 
   $scope.tasks = [];
 
@@ -13,11 +15,17 @@ app.controller('Ctrl', function Ctrl($scope, $socket) {
     $scope.serverResponse = data;
   });
 
-  $socket.on('task-received', function (data) {
-    console.log("received task")
+  $socket.on('task-added', function (data) {
+    console.log("Added task")
     $scope.tasks.unshift(data);
   });
 
+  $socket.on("initial-tasks-loaded", function (data) {
+    $timeout(function(){
+      console.log("Initial tasks loaded");
+      $scope.tasks = data;
+    });
+  });
 
   $scope.emitBasic = function emitBasic() {
     console.log('echo event emited');
@@ -31,5 +39,15 @@ app.controller('Ctrl', function Ctrl($scope, $socket) {
     });
     $scope.dataToSend = '';
   };
-});
+}
+
+mainController.$inject=[
+  "$scope",
+  "$timeout",
+  "$socket",
+]
+
+
+
+app.controller('mainController', mainController);
 

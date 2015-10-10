@@ -1,4 +1,7 @@
 # Insights
+
+Currently, this is a proof of concept
+
 ```
 $ npm install
 $ nodemon app.js

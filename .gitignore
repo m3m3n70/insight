@@ -2,3 +2,4 @@ node_modules/*
 *.sublime-workspace
 *.sublime-project
 .DS_Store
+ignore/*
