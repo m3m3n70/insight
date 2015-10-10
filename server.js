@@ -4,8 +4,10 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 var asana = require('asana');
+// TODO: make these env variables
 var apiKey = 'gFjQNCw.qpqlr3z4wwsFMBYCm5FPvjkH';
 var projectId = 52963906013475;
+
 var client = asana.Client.create().useBasicAuth(apiKey);
 var taskCollection = [];
 
@@ -15,6 +17,7 @@ server.listen(8080, function(){
   console.log('Listening at port 8080');
 });
 
+// TODO: move these to another file
 var setupAsanaListener = function(socket){
   var readable = client.events.stream(projectId, {periodSeconds: 3});
   var tasks = {};
@@ -29,7 +32,6 @@ var setupAsanaListener = function(socket){
         socket.emit('task-added', item["resource"]);
       }
       tasks[item["resource"]["id"]] = item["resource"]["name"];
-
     }
   });
 }
@@ -37,28 +39,15 @@ var setupAsanaListener = function(socket){
 var loadInitialTasks = function(socket){
   client.tasks.findByProject(projectId, {limit: 50}).then(function(collection) {
     taskCollection = collection.data;
-    // console.log(collection.data);
     socket.emit("initial-tasks-loaded", collection.data);
   });
 }
 
 var handleSocketConnection = function (socket) {
   var _socket = socket;
-
   console.log('Someone connected');
-
   loadInitialTasks(_socket);
-
-
   setupAsanaListener(_socket);
-  socket.on('echo', function (data) {
-    console.log("server side echo received");
-    _socket.emit('echo', data);
-  });
-
-  // socket.on('echo-ack', function (data, callback) {
-  //   callback(data);
-  // });
 }
 
 io.sockets.on('connection', handleSocketConnection);
