@@ -1,5 +1,7 @@
 # Insights
 
+See example here: http://104.236.155.212/
+
 Currently, this is a proof of concept
 
 ```
@@ -12,7 +14,7 @@ Open localhost:8080 in your browser
 Then go to Asana and login:
 
 ```
-keenahn@invisible.email
+keenahn@gmail.com
 1v9r65I398iSNPm
 ```
 

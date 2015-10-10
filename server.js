@@ -13,8 +13,8 @@ var taskCollection = [];
 
 app.use(express.static(__dirname + "/public"));
 
-server.listen(8080, function(){
-  console.log('Listening at port 8080');
+server.listen(process.env.PORT, function(){
+  console.log('Listening at port ' + process.env.PORT);
 });
 
 // TODO: move these to another file
@@ -37,7 +37,7 @@ var setupAsanaListener = function(socket){
 }
 
 var loadInitialTasks = function(socket){
-  client.tasks.findByProject(projectId, {limit: 50}).then(function(collection) {
+  client.tasks.findByProject(projectId, {completed_since: "now", limit: 50}).then(function(collection) {
     taskCollection = collection.data;
     socket.emit("initial-tasks-loaded", collection.data);
   });
