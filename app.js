@@ -15,14 +15,9 @@ server.listen(8080, function(){
   console.log('Listening at port 8080');
 });
 
-
-
 var setupAsanaListener = function(socket){
-
-  var readable = client.events.stream(projectId, {periodSeconds: 2});
+  var readable = client.events.stream(projectId, {periodSeconds: 3});
   var tasks = {};
-
-  //readable._polling = true;
   readable.on('data', function(item) {
     // console.log(item);
     if(item["type"] === "task" && item["resource"]["name"].length > 0){
