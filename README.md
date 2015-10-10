@@ -7,6 +7,8 @@ $ npm install
 $ nodemon app.js
 ```
 
+Open localhost:8080 in your browser
+
 Then go to Asana and login:
 
 ```
