@@ -11,11 +11,47 @@ ul li{
   list-style-type: none;
   margin:0;
   padding:0;
-  border-left:5px solid #0ff;
   padding-left: 15px;
   margin-bottom: 10px;
   font-size: 32px;
 }
+
+.one {
+  border-left: 5px solid #AAFF00;
+  background: #AAFF00;
+  color: #fff;
+}
+
+.two {
+  border-left: 5px solid #FFAA00;
+  background: #FFAA00;
+  color: #fff;
+}
+
+.three {
+  border-left: 5px solid #FF00AA;
+  background: #FF00AA;
+  color: #fff;
+}
+
+.four {
+  border-left: 5px solid #AA00FF;
+  background: #AA00FF;
+  color: #fff;
+}
+
+.five {
+  border-left: 5px solid #00AAFF;
+  background: #00AAFF;
+  color: #fff;
+}
+
+.six {
+  border-left: 5px solid #00FFAA;
+  background: #00FFAA;
+  color: #fff;
+}
+
 
 li {
     opacity: 1;
@@ -28,6 +64,9 @@ li.ng-enter {
 li.ng-enter-active {
     opacity: 1;
 }
+
+.project .task
+
 
 
 

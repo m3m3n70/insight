@@ -9,9 +9,23 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <div ng-app="myApp" ng-controller="mainController">
+    <div ng-app="insight" ng-controller="mainController">
 
       <!-- TODO: move to directive -->
+
+      <div
+        class="project-with-tasks"
+        ng-repeat="project in projectsWithTasks"
+        id="project-{{ project.id }}">
+        <h2>{{ project.name }}</h2>
+        <ul>
+          <li class="{{ project.cssClass }}" ng-if="task.name.length > 0" ng-repeat="task in project.tasks">
+            {{ task.name }}
+          </li>
+        </ul>
+      </h2>
+
+
       <ul>
         <li ng-repeat="task in tasks">
           {{ task.name }}

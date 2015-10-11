@@ -1,4 +1,4 @@
-var app = angular.module('myApp', [ 'socket.io', 'ngAnimate' ]);
+var app = angular.module('insight', [ 'socket.io', 'ngAnimate' ]);
 
 app.config(function ($socketProvider) {
 
@@ -7,54 +7,97 @@ app.config(function ($socketProvider) {
     url = "http://localhost:8080";
   }
 
-
   $socketProvider.setConnectionUrl(url);
 });
 
 
+// TODO: move to another file
 
-var mainController = function ($scope, $timeout, $socket) {
+var mainController = function ($scope, $timeout, $socket, InsightFactory) {
 
   $scope.tasks = [];
 
-  $socket.on('echo', function (data) {
-    console.log("received echo")
-    $scope.serverResponse = data;
-  });
+  $scope.projects = null;
 
+  var styles = [
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six"
+  ];
+
+  var projectIdMap = {};
+
+  // Grab the initial projects with their tasks
+  InsightFactory.projectsWithTasks().then(function(response){
+    $timeout(function(){
+      var i = 0;
+      $scope.projectsWithTasks = response.data.map(function(project){
+        project.cssClass = styles[i % 6];
+        projectIdMap[project.id] = i;
+        i++;
+        return project;
+      });
+    });
+  })
+
+  // Listen to task added events
   $socket.on('task-added', function (data) {
     console.log("Added task")
-    $scope.tasks.unshift(data);
+    var project = data.project;
+    var task = data.task;
+    var projIndex = projectIdMap[project.id];
+    $scope.projectsWithTasks[projIndex].tasks.unshift(task);
   });
 
-  $socket.on("initial-tasks-loaded", function (data) {
-    $timeout(function(){
-      console.log("Initial tasks loaded");
-      $scope.tasks = data;
-    });
-  });
-
-  $scope.emitBasic = function emitBasic() {
-    console.log('echo event emited');
-    $socket.emit('echo', $scope.dataToSend);
-    $scope.dataToSend = '';
-  };
-
-  $scope.emitACK = function emitACK() {
-    $socket.emit('echo-ack', $scope.dataToSend, function (data) {
-      $scope.serverResponseACK = data;
-    });
-    $scope.dataToSend = '';
-  };
 }
 
-mainController.$inject=[
+mainController.$inject = [
   "$scope",
   "$timeout",
   "$socket",
+  "InsightFactory"
 ]
 
+angular.module('insight').controller('mainController', mainController);
+
+// TODO: move to another file
+
+var InsightFactory = function ($http){
+  var projects = function(){
+    return $http.get("/projects");
+  }
+
+  var tasks = function(projectId){
+    return $http.get("/tasks/" + projectId);
+  }
+
+  var projectsWithTasks = function(){
+    return $http.get("/projects-with-tasks");
+  }
+
+  return {
+    projects: projects,
+    projectsWithTasks: projectsWithTasks
+  }
+}
+
+InsightFactory.$inject = [
+  "$http"
+]
+
+angular.module('insight').factory("InsightFactory", InsightFactory)
 
 
-app.controller('mainController', mainController);
+
+
+
+
+
+
+
+
+
 
