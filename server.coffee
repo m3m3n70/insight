@@ -42,6 +42,23 @@ setupAsanaListener = (socket) ->
       tasks[item["resource"]["id"]] = item["resource"]["name"]
   asanaListening = true
 
+
+colors = [
+  "#AAFF00"
+  "#FFAA00"
+  "#FF00AA"
+  "#AA00FF"
+  "#00AAFF"
+  "#00FFAA"
+]
+
+
+getProjectids = (workspaceId) ->
+  client.projects.findByWorkspace(52963906013474).then (response) ->
+    console.log(response.data)
+
+
+
 loadInitialTasks = (socket) ->
   client.tasks.findByProject(projectId, {completed_since: "now", limit: 50}).then (collection) ->
     taskCollection = collection.data
@@ -60,6 +77,11 @@ handleSocketConnection = (socket) ->
     console.log allClients.length + " users connected"
 
 app.use express.static(__dirname + "/public")
+
+app.get '/projects', (req, res) ->
+  client.projects.findByWorkspace(52963906013474).then (response) ->
+    res.send(response.data)
+
 
 server.listen process.env.PORT, ->
   console.log "Listening at port " + process.env.PORT
