@@ -36,7 +36,7 @@ setupAsanaListener = (socket) ->
       _proj = response.data[i]
       i++
       ((proj) ->
-        readable = client.events.stream(proj.id, periodSeconds: 3)
+        readable = client.events.stream(proj.id, periodSeconds: 5)
         readable.on "data", (item) ->
           if item["type"] == "task" and item["resource"]["name"].length > 0
             if tasks[item["resource"]["id"]]

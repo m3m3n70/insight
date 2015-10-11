@@ -12,36 +12,22 @@
     <div ng-app="insight" ng-controller="mainController">
 
       <!-- TODO: move to directive -->
+      <div class="loader" ng-show="!projectsWithTasks">
+        <img src="images/ripple.svg" />
+      </div>
 
       <div
         class="project-with-tasks"
         ng-repeat="project in projectsWithTasks"
         id="project-{{ project.id }}">
-        <h2>{{ project.name }}</h2>
+        <!-- <h2>{{ project.name }}</h2> -->
         <ul>
           <li class="{{ project.cssClass }}" ng-if="task.name.length > 0" ng-repeat="task in project.tasks">
             {{ task.name }}
           </li>
         </ul>
-      </h2>
+      </div>
 
-
-      <ul>
-        <li ng-repeat="task in tasks">
-          {{ task.name }}
-        </li>
-
-<!--       <li class="cube show-bottom" ng-repeat="task in tasks">
-        <figure class="front">{{ task.name }}</figure>
-        <figure class="back"></figure>
-        <figure class="right"></figure>
-        <figure class="left"></figure>
-        <figure class="top"></figure>
-        <figure class="bottom"></figure>
-      </li> -->
-
-
-      </ul>
 
 
     </div>

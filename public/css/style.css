@@ -2,6 +2,14 @@
   font-family: Helvetica Neue,sans-serif;
 }
 
+body{
+  background: #fff;
+}
+
+.loader{
+  text-align: center
+}
+
 ul{
   margin:0;
   padding:0;
@@ -17,38 +25,32 @@ ul li{
 }
 
 .one {
-  border-left: 5px solid #AAFF00;
   background: #AAFF00;
-  color: #fff;
+  color: #333;
 }
 
 .two {
-  border-left: 5px solid #FFAA00;
-  background: #FFAA00;
-  color: #fff;
-}
-
-.three {
-  border-left: 5px solid #FF00AA;
   background: #FF00AA;
   color: #fff;
 }
 
+.three {
+  background: #FFAA00;
+  color: #fff;
+}
+
 .four {
-  border-left: 5px solid #AA00FF;
-  background: #AA00FF;
+  background: #00FFAA;
   color: #fff;
 }
 
 .five {
-  border-left: 5px solid #00AAFF;
-  background: #00AAFF;
+  background: #AA00FF;
   color: #fff;
 }
 
 .six {
-  border-left: 5px solid #00FFAA;
-  background: #00FFAA;
+  background: #00AAFF;
   color: #fff;
 }
 
