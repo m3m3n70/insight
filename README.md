@@ -18,10 +18,10 @@ keenahn@invisible.email
 1v9r65I398iSNPm
 ```
 
-Go to the "Buckets" project and start adding tasks
+Start adding tasks to projects
 
 ## TODO
-1. Refactor all the things!
+1. Refactor all the things! Add gulp and better directory structure
 2. Move project and api key to environment variables
 3. Style it all
 4. Add more advanced visualizations
