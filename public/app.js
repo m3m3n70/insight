@@ -7,7 +7,7 @@ app.config(function ($socketProvider) {
     url = "http://localhost:8080";
   }
 
-  console.log(url);
+  // console.log(url);
 
   $socketProvider.setConnectionUrl(url);
 });
@@ -116,9 +116,9 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
 
     var bindTo = '#team-' + team["id"] + " .pie-chart";
 
-    console.log(bindTo);
-    console.log(chartData);
-    console.log(chartColors);
+    // console.log(bindTo);
+    // console.log(chartData);
+    // console.log(chartColors);
 
     var chart = c3.generate({
         bindto: '#team-' + team["id"] + " .pie-chart",
@@ -174,7 +174,7 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
 
 
   $socket.on("heartbeat", function (data) {
-    console.log("heartbeat");
+    // console.log("heartbeat");
     $scope.loaded = true;
     updateOnHeartbeat(data);
   });
