@@ -6,9 +6,32 @@ io = require("socket.io")(server)
 
 asana = require("asana")
 # TODO: make these env variables
-apiKey = "gFjQNCw.qpqlr3z4wwsFMBYCm5FPvjkH"
+apiKey = "gbNGGU78.LoEgfkUIdCHOOxCQoI8Mm3R" # "gFjQNCw.qpqlr3z4wwsFMBYCm5FPvjkH"
 projectId = 52963906013475
-workspaceId = 52963906013474
+workspaceId = 20868448192120 # fact0ry organization workspace
+
+
+# Hardcoded for Nike, but will be able to pull from asana in the future
+teams = {
+  56815685307709: { id: "56815685307709", name: 'Nike Team #2 - Do More, Do Better'  , projects: []}
+  56815679044828: { id: "56815679044828", name: 'Nike Team #1 - Invite & Join'       , projects: []}
+  56815679044829: { id: "56815679044829", name: 'Nike Team #3 - Inside Access'       , projects: []}
+  56815679044830: { id: "56815679044830", name: 'Nike Team #4 - Elevate the Athlete' , projects: []}
+  56909588915212: { id: "56909588915212", name: 'Nike Team # 5 - Command Center'     , projects: []}
+}
+
+# Hardcoded for Nike, but will be able to pull from asana in the future
+
+teamIds = [
+  56815685307709
+  56815679044828
+  56815679044829
+  56815679044830
+  56909588915212
+]
+
+
+# workspaceId = 52963906013474 # Keenahn's personal workspace
 client = asana.Client.create().useBasicAuth(apiKey)
 taskCollection = []
 allClients = []
@@ -60,7 +83,8 @@ handleSocketConnection = (socket) ->
   allClients.push _socket
   console.log allClients.length + " users connected"
   # loadInitialTasks _socket
-  setupAsanaListener _socket
+  # setupAsanaListener _socket
+  setupHeartbeatEmitter(_socket)
   socket.on "disconnect", ->
     console.log "Got disconnect!"
     i = allClients.indexOf(socket)
@@ -76,6 +100,75 @@ app.get "/projects", (req, res) ->
 app.get "/tasks/:projectId", (req, res) ->
   client.tasks.findByProject(projectId, {completed_since: "now", limit: 50}).then (collection) ->
     res.send(collection.data)
+
+
+
+app.get "/heartbeat", (req, res) ->
+  heartbeat(res)
+
+setupHeartbeatEmitter = (socket) ->
+  setInterval ->
+    heartbeat(null, socket)
+  , 10000
+
+heartbeat = (res, socket) ->
+  console.log("heartbeat")
+  # 1. Get the teams
+  teamIds = teamIds # hardcoded for now
+  ret = JSON.parse(JSON.stringify(teams)) # hardcoded for now, clone it!
+
+  # 2. Get the projects
+  # We are getting all the projects for the workspace instead of per team
+  # Because this saves us 1 api call per team
+  workspaceId = workspaceId
+  projects = []
+
+  # TODO: refactor using promises with Q
+  projectsCallback = (response) ->
+    projs = response.data
+    count = 0
+    # Get the full project objects to get the color of the project
+    for proj in projs
+      do (proj) ->
+        id = proj.id
+        client.projects.findById(id).then (response) ->
+          projects.push(response)
+          count++
+          # Only return once all the async calls have completed
+          if count == projs.length
+            findTasks(projects)
+
+  # 2. Get the tasks for each project
+  findTasks = (projects) ->
+    count = 0
+    for proj in projects
+      do (proj) ->
+        id = proj.id
+        client.tasks.findByProject(id, {completed_since: "now"}).then (collection) ->
+          proj["tasks"] = collection.data
+          proj["taskCount"] = collection.data.length
+          count++
+          # Only return once all the async calls have completed
+          if count == projects.length
+            buildEmitResponse(projects)
+
+  # 3. Hook the projects up to their respective teams
+  buildEmitResponse = (projects) ->
+    for proj in projects
+      ret[proj.team.id].projects.push(proj)
+    if socket
+      socket.emit "heartbeat", ret
+    if res
+      res.send(ret)
+
+
+  # 4. Grab the count of tasks marked with "wow"
+  # 5. Grab the count of tasks marked with "dead"
+
+
+  client.projects.findByWorkspace(workspaceId).then projectsCallback
+
+
 
 app.get "/projects-with-tasks", (req, res) ->
   client.projects.findByWorkspace(workspaceId).then (response) ->
@@ -108,8 +201,6 @@ loadInitialTasks = (socket) ->
   client.tasks.findByProject(projectId, {completed_since: "now", limit: 50}).then (collection) ->
     taskCollection = collection.data
     socket.emit "initial-tasks-loaded", taskCollection
-
-
 
 server.listen process.env.PORT, ->
   console.log "Listening at port " + process.env.PORT

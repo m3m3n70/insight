@@ -31,17 +31,22 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
   var projectIdMap = {};
 
   // Grab the initial projects with their tasks
-  InsightFactory.projectsWithTasks().then(function(response){
-    $timeout(function(){
-      var i = 0;
-      $scope.projectsWithTasks = response.data.map(function(project){
-        project.cssClass = styles[i % 6];
-        projectIdMap[project.id] = i;
-        i++;
-        return project;
+  function loadProjectsWithTasks(){
+    InsightFactory.projectsWithTasks().then(function(response){
+      $timeout(function(){
+        var i = 0;
+        $scope.projectsWithTasks = response.data.map(function(project){
+          project.cssClass = styles[i % 6];
+          projectIdMap[project.id] = i;
+          i++;
+          return project;
+        });
       });
-    });
-  })
+    })
+  }
+
+
+
 
   // Listen to task added events
   $socket.on('task-added', function (data) {
@@ -51,6 +56,12 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
     var projIndex = projectIdMap[project.id];
     $scope.projectsWithTasks[projIndex].tasks.unshift(task);
   });
+
+  $socket.on("heartbeat", function (data) {
+    console.log("heartbeat");
+    console.log(data);
+  });
+
 
 }
 
