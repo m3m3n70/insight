@@ -13,11 +13,11 @@ workspaceId = 20868448192120 # fact0ry organization workspace
 
 # Hardcoded for Nike, but will be able to pull from asana in the future
 teams = {
-  56815685307709: { id: "56815685307709", name: 'Nike Team #2 - Do More, Do Better'  , projects: []}
-  56815679044828: { id: "56815679044828", name: 'Nike Team #1 - Invite & Join'       , projects: []}
-  56815679044829: { id: "56815679044829", name: 'Nike Team #3 - Inside Access'       , projects: []}
-  56815679044830: { id: "56815679044830", name: 'Nike Team #4 - Elevate the Athlete' , projects: []}
-  56909588915212: { id: "56909588915212", name: 'Nike Team # 5 - Command Center'     , projects: []}
+  56815685307709: { id: "56815685307709", name: 'Nike Team #2 - Do More, Do Better'  , projects: [], taskCount: 0}
+  56815679044828: { id: "56815679044828", name: 'Nike Team #1 - Invite & Join'       , projects: [], taskCount: 0}
+  56815679044829: { id: "56815679044829", name: 'Nike Team #3 - Inside Access'       , projects: [], taskCount: 0}
+  56815679044830: { id: "56815679044830", name: 'Nike Team #4 - Elevate the Athlete' , projects: [], taskCount: 0}
+  56909588915212: { id: "56909588915212", name: 'Nike Team # 5 - Command Center'     , projects: [], taskCount: 0}
 }
 
 # Hardcoded for Nike, but will be able to pull from asana in the future
@@ -155,11 +155,18 @@ heartbeat = (res, socket) ->
   # 3. Hook the projects up to their respective teams
   buildEmitResponse = (projects) ->
     for proj in projects
-      ret[proj.team.id].projects.push(proj)
+      # WHY IS THIS CAUSING A BUG?
+      if ret[proj.team.id]
+        ret[proj.team.id].projects.push(proj)
+        ret[proj.team.id].taskCollection += proj["taskCount"]
+
+    keys = Object.keys(ret)
+    vals = keys.map (v) -> ret[v]
+
     if socket
-      socket.emit "heartbeat", ret
+      socket.emit "heartbeat", vals
     if res
-      res.send(ret)
+      res.send(vals)
 
 
   # 4. Grab the count of tasks marked with "wow"

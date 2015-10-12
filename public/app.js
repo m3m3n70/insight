@@ -7,6 +7,8 @@ app.config(function ($socketProvider) {
     url = "http://localhost:8080";
   }
 
+  console.log(url);
+
   $socketProvider.setConnectionUrl(url);
 });
 
@@ -19,14 +21,23 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
 
   $scope.projects = null;
 
-  var styles = [
-    "one",
-    "two",
-    "three",
-    "four",
-    "five",
-    "six"
-  ];
+  $scope.loaded = false;
+  // var styles = [
+  //   "one",
+  //   "two",
+  //   "three",
+  //   "four",
+  //   "five",
+  //   "six"
+  // ];
+  // Listen to task added events
+  // $socket.on('task-added', function (data) {
+  //   console.log("Added task")
+  //   var project = data.project;
+  //   var task = data.task;
+  //   var projIndex = projectIdMap[project.id];
+  //   $scope.projectsWithTasks[projIndex].tasks.unshift(task);
+  // });
 
   var projectIdMap = {};
 
@@ -45,23 +56,128 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
     })
   }
 
+  asanaColors = {
+    "dark-pink": "#b13f94",
+    "dark-green": "#427e53",
+    "dark-blue": "#3c68bb",
+    "dark-red": "#c73f27",
+    "dark-teal": "#008eaa",
+    "dark-brown": "#906461",
+    "dark-orange": "#e17000",
+    "dark-purple": "#6743b3",
+    "dark-warm-gray": "#493c3d",
+    "light-pink": "#f4b6db",
+    "light-green": "#c9db9c",
+    "light-blue": "#b6c3db",
+    "light-red": "#efbdbd",
+    "light-teal": "#aad1eb",
+    "light-yellow": "#ffeda4",
+    "light-orange": "#facdaa",
+    "light-purple": "#dacae0",
+    "light-warm-gray": "#cec5c6"
+  } ;
 
+  function generateChartForTeam(team){
+    var $pies = $("#pies");
 
+    $teamChart = $("<div id='team-" + team["id"] +"'></div>");
+    $teamChart.append("<h2>" + team["name"] + "</h2>");
+    $teamChart.append("<div class='pie-chart'></div>");
 
-  // Listen to task added events
-  $socket.on('task-added', function (data) {
-    console.log("Added task")
-    var project = data.project;
-    var task = data.task;
-    var projIndex = projectIdMap[project.id];
-    $scope.projectsWithTasks[projIndex].tasks.unshift(task);
-  });
+    var $teamChartOld = $pies.find("#team-" + team["id"]);
+    if($teamChartOld.length == 0){
+      $pies.append($teamChart);
+    } else {
+      $teamChartOld.replaceWith($teamChart);
+    }
+
+    var chartData = [];
+    var chartColors = {};
+    var diameter = 0;
+
+    var projects = team["projects"];
+    for(var i = 0; i < projects.length; i++){
+      var project = projects[i];
+      diameter += parseInt(project["taskCount"]);
+      chartData.push(
+        [
+          project["name"],
+          project["taskCount"]
+        ]
+      );
+      chartColors[project["name"]] = asanaColors[project["color"]]
+    }
+
+    diameter *= 25;
+
+    diameter = Math.min(200, diameter);
+
+    // 1920 x 1080
+
+    var bindTo = '#team-' + team["id"] + " .pie-chart";
+
+    console.log(bindTo);
+    console.log(chartData);
+    console.log(chartColors);
+
+    var chart = c3.generate({
+        bindto: '#team-' + team["id"] + " .pie-chart",
+        size: {
+          height: diameter,
+          width: diameter
+        },
+        data: {
+            columns: chartData,
+            colors: chartColors,
+            type : 'pie',
+            // onclick: function (d, i) { console.log("onclick", d, i); },
+            // onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+            // onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+        }
+    });
+
+    team.chart = chart;
+
+    return chart;
+  } ;
+
+  function updateOnHeartbeat(heartbeat){
+
+    // team = heartbeat[1];
+    // generateChartForTeam(team);
+
+    var maxWidth = 1080.0;
+    var minWidth = 200;
+
+    var totalTaskCount = 0.0;
+    var team, chart, diameter;
+
+    for(var i = 0; i < heartbeat.length ; i++){
+      team = heartbeat[i];
+      generateChartForTeam(team);
+      totalTaskCount += parseInt(team["taskCount"]);
+    }
+
+    // Now, scale all the charts again based on the totalTaskCount
+
+    for(var i = 0; i < heartbeat.length ; i++){
+      team = heartbeat[i];
+      chart = team.chart;
+      diameter = (parseInt(team["taskCount"]) / totalTaskCount) * maxWidth;
+
+      team.chart.resize({
+        height: diameter,
+        width: diameter
+      });
+    }
+  } ;
+
 
   $socket.on("heartbeat", function (data) {
     console.log("heartbeat");
-    console.log(data);
+    $scope.loaded = true;
+    updateOnHeartbeat(data);
   });
-
 
 }
 
@@ -100,15 +216,3 @@ InsightFactory.$inject = [
 ]
 
 angular.module('insight').factory("InsightFactory", InsightFactory)
-
-
-
-
-
-
-
-
-
-
-
-
