@@ -107,6 +107,7 @@ app.get "/heartbeat", (req, res) ->
   heartbeat(res)
 
 setupHeartbeatEmitter = (socket) ->
+  heartbeat(null, socket);
   setInterval ->
     heartbeat(null, socket)
   , 10000
