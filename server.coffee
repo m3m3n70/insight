@@ -110,7 +110,7 @@ setupHeartbeatEmitter = (socket) ->
   heartbeat(null, socket);
   setInterval ->
     heartbeat(null, socket)
-  , 10000
+  , 15000
 
 heartbeat = (res, socket) ->
   console.log("heartbeat")
@@ -159,7 +159,7 @@ heartbeat = (res, socket) ->
       # WHY IS THIS CAUSING A BUG?
       if ret[proj.team.id]
         ret[proj.team.id].projects.push(proj)
-        ret[proj.team.id].taskCollection += proj["taskCount"]
+        ret[proj.team.id].taskCount += proj["taskCount"]
 
     keys = Object.keys(ret)
     vals = keys.map (v) -> ret[v]
