@@ -95,16 +95,19 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
     var totalTaskCount = 0.0;
     var team, chart, diameter;
 
+    teams = heartbeat.teams;
+    console.log(heartbeat.wowTasks);
+    console.log(heartbeat.deadTasks);
 
     // Set the totalTaskCount
-    for(var i = 0; i < heartbeat.length ; i++){
-      team = heartbeat[i];
+    for(var i = 0; i < teams.length ; i++){
+      team = teams[i];
       totalTaskCount += parseInt(team["taskCount"]);
     }
 
     // Calculate the diameter as a percentage of the total task count
-    for(i = 0; i < heartbeat.length ; i++){
-      team = heartbeat[i];
+    for(i = 0; i < teams.length ; i++){
+      team = teams[i];
       diameter = (parseInt(team["taskCount"]) / totalTaskCount) * maxWidth;
       team.diameter = diameter;
 
