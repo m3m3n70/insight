@@ -108,9 +108,7 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
       chartColors[project["name"]] = asanaColors[project["color"]]
     }
 
-    diameter *= 25;
-
-    diameter = Math.min(200, diameter);
+    // diameter = Math.min(200, diameter);
 
     // 1920 x 1080
 
@@ -123,8 +121,8 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
     var chart = c3.generate({
         bindto: '#team-' + team["id"] + " .pie-chart",
         size: {
-          height: diameter,
-          width: diameter
+          height: team.diameter,
+          width: team.diameter
         },
         data: {
             columns: chartData,
@@ -146,30 +144,37 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
     // team = heartbeat[1];
     // generateChartForTeam(team);
 
+    console.log(heartbeat);
+
     var maxWidth = 1080.0;
     var minWidth = 200;
 
     var totalTaskCount = 0.0;
     var team, chart, diameter;
 
-    for(var i = 0; i < heartbeat.length ; i++){
-      team = heartbeat[i];
-      generateChartForTeam(team);
-      totalTaskCount += parseInt(team["taskCount"]);
-    }
 
     // Now, scale all the charts again based on the totalTaskCount
 
     for(var i = 0; i < heartbeat.length ; i++){
       team = heartbeat[i];
-      chart = team.chart;
-      diameter = (parseInt(team["taskCount"]) / totalTaskCount) * maxWidth;
-
-      team.chart.resize({
-        height: diameter,
-        width: diameter
-      });
+      totalTaskCount += parseInt(team["taskCount"]);
     }
+
+    for(i = 0; i < heartbeat.length ; i++){
+      team = heartbeat[i];
+      console.log(team["taskCount"]);
+      console.log(totalTaskCount);
+      diameter = (parseInt(team["taskCount"]) / totalTaskCount) * maxWidth;
+      console.log(team.name);
+      console.log(diameter);
+      team.diameter = diameter;
+
+
+      generateChartForTeam(team);
+    }
+
+
+
   } ;
 
 
