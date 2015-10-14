@@ -204,11 +204,13 @@ heartbeat = (res) ->
   # 5. Grab the tasks marked with "dead"
   # 6. Grab the tasks marked with "validated"
   assignProjectsToTeams = (projects, ret) ->
+    wowCount = 0
     for proj in projects
       team = ret[proj.team.id]
       continue unless team
       if proj.id == team.wowProjectId
         team.wowTasks = proj.tasks
+        wowCount += proj.tasks.length
       else if proj.id == team.deadProjectId
         team.deadTasks = proj.tasks
       else if proj.id == team.validatedProjectId
@@ -217,6 +219,12 @@ heartbeat = (res) ->
         team.projects.push(proj)
         team.taskCount += proj["taskCount"]
 
+    tnow = Math.floor(new Date().getTime() / 1000)
+
+    fs.appendFile "public/wowcounts.csv", "#{tnow},#{wowCount}\n", (err) ->
+      if err
+        console.log "error"
+      console.log 'The "data to append" was appended to file!'
     buildEmitResponse(ret)
 
   # getTaggedTasks = (projects) ->

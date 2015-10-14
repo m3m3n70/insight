@@ -3,3 +3,5 @@ node_modules/*
 *.sublime-project
 .DS_Store
 ignore/*
+public/wowcounts.csv
+

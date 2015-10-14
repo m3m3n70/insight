@@ -14,7 +14,7 @@
   });
 
   mainController = function($scope, $timeout, $socket, InsightFactory) {
-    var asanaColors, conditionallyAddTask, generateAllTasks, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeTaskRotator, shuffle, updateOnHeartbeat;
+    var asanaColors, conditionallyAddTask, generateAllTasks, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeTaskRotator, processCsv, shuffle, updateOnHeartbeat;
     shuffle = function(o) {
       var i, j, x;
       i = o.length;
@@ -99,33 +99,68 @@
         i++;
       }
     };
-    generateInitialWowMeter = function() {
-      var bindTo, chart;
-      bindTo = "#wow-chart";
-      chart = c3.generate({
-        bindto: bindTo,
-        size: {
-          height: 640,
-          width: 1080
-        },
-        data: {
-          x: "x",
-          columns: [$scope.wowTimes, $scope.wowCounts],
-          type: 'area'
-        },
-        axis: {
-          x: {
-            type: 'timeseries',
-            tick: {
-              format: '%H:%M'
-            }
-          }
-        },
-        legend: {
-          hide: false
+    processCsv = function(allText) {
+      var allTextLines, data, i, j, lines, tarr;
+      allTextLines = allText.split(/\r\n|\n/);
+      lines = [];
+      i = 0;
+      while (i < allTextLines.length - 1) {
+        data = allTextLines[i].split(',');
+        tarr = [];
+        j = 0;
+        while (j < data.length) {
+          tarr.push(data[j]);
+          j++;
         }
+        lines.push(tarr);
+        i++;
+      }
+      return lines;
+    };
+    generateInitialWowMeter = function() {
+      return InsightFactory.getInitialWowCounts().then(function(data) {
+        var bindTo, chart, rows;
+        console.log(data.data);
+        rows = processCsv(data.data);
+        $scope.wowTimes = rows.map(function(a) {
+          var x;
+          x = new Date(0);
+          x.setSeconds(a[0]);
+          return x;
+        });
+        $scope.wowTimes.unshift("x");
+        $scope.wowCounts = rows.map(function(a) {
+          return a[1];
+        });
+        $scope.wowCounts.unshift("Wows");
+        console.log($scope.wowTimes);
+        console.log($scope.wowCounts);
+        bindTo = "#wow-chart";
+        chart = c3.generate({
+          bindto: bindTo,
+          size: {
+            height: 640,
+            width: 1080
+          },
+          data: {
+            x: "x",
+            columns: [$scope.wowTimes, $scope.wowCounts],
+            type: 'area'
+          },
+          axis: {
+            x: {
+              type: 'timeseries',
+              tick: {
+                format: '%H:%M'
+              }
+            }
+          },
+          legend: {
+            hide: false
+          }
+        });
+        return $scope.wowChart = chart;
       });
-      return $scope.wowChart = chart;
     };
     generateWowMeterForTeams = function(teams) {
       var chartData, i, team, wowCount;
@@ -375,7 +410,7 @@
   angular.module('insight').controller('mainController', mainController);
 
   InsightFactory = function($http) {
-    var projects, projectsWithTasks, tasks;
+    var getInitialWowCounts, projects, projectsWithTasks, tasks;
     projects = function() {
       return $http.get('/projects');
     };
@@ -385,9 +420,13 @@
     projectsWithTasks = function() {
       return $http.get('/projects-with-tasks');
     };
+    getInitialWowCounts = function() {
+      return $http.get("/wowcounts.csv");
+    };
     return {
       projects: projects,
-      projectsWithTasks: projectsWithTasks
+      projectsWithTasks: projectsWithTasks,
+      getInitialWowCounts: getInitialWowCounts
     };
   };
 

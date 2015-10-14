@@ -85,31 +85,65 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
       i++
     return
 
+  processCsv = (allText) ->
+    allTextLines = allText.split(/\r\n|\n/)
+    lines = []
+    i = 0
+    while i < allTextLines.length - 1
+      data = allTextLines[i].split(',')
+      tarr = []
+      j = 0
+      while j < data.length
+        tarr.push data[j]
+        j++
+      lines.push tarr
+      i++
+    lines
+
   generateInitialWowMeter = () ->
     # console.log $scope.wowTimes
-    bindTo = "#wow-chart"
-    chart = c3.generate(
-      bindto: bindTo
-      size:
-        height: 640
-        width: 1080
-      data:
-        x: "x"
-        # xFormat: '%Y-%m-%d %H:%M:%S'
-        columns: [
-          $scope.wowTimes
-          $scope.wowCounts
-        ]
-        # colors: ["Wows", "#ff00aa"]
-        type: 'area'
+    InsightFactory.getInitialWowCounts().then (data) ->
+      console.log(data.data)
+      rows = processCsv(data.data)
+      $scope.wowTimes = rows.map (a) ->
+        x = new Date(0)
+        x.setSeconds(a[0])
+        x
 
-      axis: x:
-        type: 'timeseries'
-        tick: format: '%H:%M'
-      legend:
-        hide: false
-    )
-    $scope.wowChart = chart
+      $scope.wowTimes.unshift "x"
+      $scope.wowCounts = rows.map((a) -> a[1])
+      $scope.wowCounts.unshift "Wows"
+
+      console.log($scope.wowTimes)
+      console.log($scope.wowCounts)
+
+      # var utcSeconds = 1234567890;
+      # var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+      # d.setUTCSeconds(utcSeconds);
+
+      bindTo = "#wow-chart"
+      chart = c3.generate(
+        bindto: bindTo
+        size:
+          height: 640
+          width: 1080
+        data:
+          x: "x"
+          # xFormat: '%Y-%m-%d %H:%M:%S'
+          columns: [
+            $scope.wowTimes
+            $scope.wowCounts
+          ]
+          # colors: ["Wows", "#ff00aa"]
+          type: 'area'
+
+        axis: x:
+          type: 'timeseries'
+          tick: format: '%H:%M'
+        legend:
+          hide: false
+      )
+      $scope.wowChart = chart
 
   generateWowMeterForTeams = (teams) ->
     wowCount = 0
@@ -300,6 +334,7 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
 
 
   init = () ->
+
     initializeTaskRotator()
     generateInitialWowMeter()
 
@@ -330,9 +365,13 @@ InsightFactory = ($http) ->
   projectsWithTasks = ->
     $http.get '/projects-with-tasks'
 
+  getInitialWowCounts = () ->
+    $http.get "/wowcounts.csv"
+
   return {
     projects: projects
     projectsWithTasks: projectsWithTasks
+    getInitialWowCounts: getInitialWowCounts
   }
 
 InsightFactory.$inject = [ '$http' ]
