@@ -139,7 +139,11 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
 
         axis: x:
           type: 'timeseries'
-          tick: format: '%H:%M'
+          tick:
+            format: '%H:%M'
+            multiline:false
+            culling:
+              max: 10
         legend:
           hide: false
       )

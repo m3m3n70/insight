@@ -151,7 +151,11 @@
             x: {
               type: 'timeseries',
               tick: {
-                format: '%H:%M'
+                format: '%H:%M',
+                multiline: false,
+                culling: {
+                  max: 10
+                }
               }
             }
           },
