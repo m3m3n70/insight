@@ -141,3 +141,22 @@ li.ng-enter-active {
 }
 
 
+
+#wow-tasks ul{
+  height: 100%;
+  overflow: hidden;
+}
+#wow-tasks li{
+  height: 100%;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  width: 45%;
+  float:left;
+  margin-left: 2.5%;
+  margin-right: 2.5%;
+  padding: 30px;
+}
+
+#wow-tasks li:last-child{
+  margin-right: 0;
+}

@@ -25,6 +25,17 @@
 
         </div>
 
+        <div class="row" id="wow-tasks">
+          <ul>
+            <li class="wow-task-card " ng-if="wowTask.task.name.length > 0" ng-repeat="wowTask in wowTasks">
+              <h2>
+                {{wowTask.teamName}}
+              </h2>
+              <p>{{ wowTask.task.name }}</p>
+            </li>
+          </ul>
+        </div>
+
         <!--       <div
                 class="project-with-tasks"
                 ng-repeat="project in projectsWithTasks"

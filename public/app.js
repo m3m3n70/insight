@@ -14,7 +14,7 @@
   });
 
   mainController = function($scope, $timeout, $socket, InsightFactory) {
-    var asanaColors, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, updateOnHeartbeat;
+    var asanaColors, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, rotator_builder, updateOnHeartbeat;
     generateChartForTeam = function(team, i) {
       var i;
       var $pies, $teamChart, $teamChartOld, bindTo, chart, chartColors, chartData, display_name, project, projects;
@@ -22,7 +22,7 @@
       if (i > 2) {
         $pies = $('#pies-2');
       }
-      display_name = team['name'].substring(15, 99999);
+      display_name = team['name'];
       $teamChart = $('<div class=\'team team-' + i + '\' id=\'team-' + team['id'] + '\'></div>');
       $teamChart.append('<h2>' + display_name + '</h2>');
       $teamChart.append('<div class=\'pie-chart\'></div>');
@@ -150,6 +150,24 @@
       left = 0;
       top = 0;
       i = 0;
+      while (i < deadTasks.length) {
+        left = Math.floor(Math.random() * maxX / 95) * 95;
+        top = Math.floor(Math.random() * maxY / 150) * 150;
+        $img = $('<img src=\'images/grave2.png\' width=100 title=\'' + deadTasks[i].name + '\' />');
+        $img.css({
+          left: left,
+          bottom: top
+        });
+        $('#graveyard').append($img);
+        i++;
+      }
+      $graveyard = $('#graveyard');
+      $('#graveyard').empty();
+      maxX = 900;
+      maxY = 450;
+      left = 0;
+      top = 0;
+      i = 0;
       results = [];
       while (i < deadTasks.length) {
         left = Math.floor(Math.random() * maxX / 95) * 95;
@@ -164,12 +182,67 @@
       }
       return results;
     };
+    $scope.wowTaskIds = {};
+    generateWowTasks = function(teams) {
+      var j, len, results, team, tempWowTasks;
+      tempWowTasks = [];
+      results = [];
+      for (j = 0, len = teams.length; j < len; j++) {
+        team = teams[j];
+        results.push((function(team) {
+          var k, len1, ref, results1, task;
+          ref = team.wowTasks;
+          results1 = [];
+          for (k = 0, len1 = ref.length; k < len1; k++) {
+            task = ref[k];
+            if ($scope.wowTaskIds[task.id]) {
+              continue;
+            } else {
+              $scope.wowTaskIds[task.id] = true;
+              results1.push($scope.wowTasks.push({
+                teamName: team.name,
+                task: task
+              }));
+            }
+          }
+          return results1;
+        })(team));
+      }
+      return results;
+    };
+    rotator_builder = function(selector, args) {
+      var $items, cur, loop_fn, num_items, prev, show_dur, trans_in, trans_in_dur, trans_out, trans_out_dur;
+      trans_in = args.trans_in || "fadeIn";
+      trans_out = args.trans_out || "fadeOut";
+      trans_in_dur = args.trans_in_dur || 1000;
+      trans_out_dur = args.trans_out_dur || 400;
+      show_dur = args.show_dur || 7000;
+      $items = $(selector);
+      num_items = $items.length;
+      cur = 0;
+      prev = num_items - 1;
+      loop_fn = function() {
+        cur %= num_items;
+        prev %= num_items;
+        $($items[prev]).animate({
+          left: '590px'
+        }, trans_out_dur);
+        $($items[cur]).delay(trans_out_dur + 10).animate({
+          left: '590px'
+        }, trans_in_dur);
+        cur++;
+        prev++;
+        return setTimeout(loop_fn, show_dur);
+      };
+      return loop_fn;
+    };
     updateOnHeartbeat = function(heartbeat) {
       var teams;
       teams = heartbeat.teams;
       generateChartsForTeams(teams);
       generateWowMeterForTeams(teams);
-      return generateGraveyardForTeams(teams);
+      generateGraveyardForTeams(teams);
+      return generateWowTasks(teams);
     };
     $scope.tasks = [];
     $scope.projects = null;
@@ -203,7 +276,11 @@
       'light-purple': '#e4b5f5',
       'light-warm-gray': '#e9aab1'
     };
-    generateInitialWowMeter();
+    init = function() {
+      rotator_builder(".wow-task-card", {})();
+      return generateInitialWowMeter();
+    };
+    init();
     return $socket.on('heartbeat', function(data) {
       $scope.loaded = true;
       return updateOnHeartbeat(data);

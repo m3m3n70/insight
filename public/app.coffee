@@ -16,8 +16,7 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
     $pies = $('#pies-1')
     if i > 2
       $pies = $('#pies-2')
-    display_name = team['name'].substring(15, 99999)
-    # Strip off "Nike Team #1"
+    display_name = team['name'] # .substring(15, 99999) # Strip off "Nike Team #1"
     $teamChart = $('<div class=\'team team-' + i + '\' id=\'team-' + team['id'] + '\'></div>')
     $teamChart.append '<h2>' + display_name + '</h2>'
     $teamChart.append '<div class=\'pie-chart\'></div>'
@@ -148,13 +147,73 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
       $('#graveyard').append $img
       i++
 
+    $graveyard = $('#graveyard')
 
+    $('#graveyard').empty();
+
+    maxX = 900
+    maxY = 450
+    left = 0
+    top = 0
+    i = 0
+    while i < deadTasks.length
+      left = Math.floor(Math.random() * maxX / 95) * 95
+      top = Math.floor(Math.random() * maxY / 150) * 150
+      $img = $('<img src=\'images/grave2.png\' width=100 title=\'' + deadTasks[i].name + '\' />')
+      $img.css
+        left: left
+        bottom: top
+      $('#graveyard').append $img
+      i++
+
+  $scope.wowTaskIds = {}
+
+  generateWowTasks = (teams) ->
+    tempWowTasks = []
+    for team in teams
+      do (team) ->
+        for task in team.wowTasks
+          if $scope.wowTaskIds[task.id]
+            continue
+          else
+            $scope.wowTaskIds[task.id] = true
+            $scope.wowTasks.push(
+              {
+                teamName: team.name
+                task: task
+              }
+            )
+
+
+
+  rotator_builder = (selector, args) ->
+    trans_in = args.trans_in || "fadeIn"
+    trans_out = args.trans_out || "fadeOut"
+    trans_in_dur = args.trans_in_dur || 1000
+    trans_out_dur = args.trans_out_dur || 400
+    show_dur = args.show_dur || 7000
+
+    $items = $(selector)
+    num_items = $items.length
+    cur = 0
+    prev = num_items - 1
+    loop_fn = () ->
+      cur %=  num_items
+      prev %= num_items
+      $($items[prev]).animate({left: '590px'}, trans_out_dur)
+      $($items[cur]).delay(trans_out_dur+10).animate({left: '590px'}, trans_in_dur)
+      # need that +10 to make sure there's no overlap and the prev item is completely gone
+      cur++
+      prev++
+      setTimeout loop_fn, show_dur
+    loop_fn
 
   updateOnHeartbeat = (heartbeat) ->
     teams = heartbeat.teams
     generateChartsForTeams teams
     generateWowMeterForTeams teams
-    generateGraveyardForTeams (teams)
+    generateGraveyardForTeams teams
+    generateWowTasks teams
 
 
   $scope.tasks = []
@@ -193,7 +252,12 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
     'light-purple':    '#e4b5f5'
     'light-warm-gray': '#e9aab1'
 
-  generateInitialWowMeter()
+
+  init = () ->
+    rotator_builder(".wow-task-card", {})()
+    generateInitialWowMeter()
+
+  init()
 
   $socket.on 'heartbeat', (data) ->
     $scope.loaded = true

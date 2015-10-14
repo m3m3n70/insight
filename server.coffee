@@ -22,7 +22,8 @@ deadTagId = 57545435627266
 teams = {
   56815679044828: {
     id: "56815679044828"
-    name: "Nike Team #1 - Invite & Join"
+    name: "Invite & Join"
+    # name: "Nike Team #1 - Invite & Join"
     projects: []
     ignoreProjectIds: [
       57753556680343
@@ -36,7 +37,8 @@ teams = {
   }
   56815685307709: {
     id: "56815685307709"
-    name: "Nike Team #2 - Do More, Do Better"
+    name: "Do More, Do Better"
+    # name: "Nike Team #2 - Do More, Do Better"
     projects: []
     ignoreProjectIds: [
       57753556680347
@@ -50,7 +52,8 @@ teams = {
   }
   56815679044829: {
     id: "56815679044829"
-    name: "Nike Team #3 - Inside Access"
+    name: "Inside Access"
+    # name: "Nike Team #3 - Inside Access"
     projects: []
     ignoreProjectIds: [
       57753556680351
@@ -64,7 +67,8 @@ teams = {
   }
   56815679044830: {
     id: "56815679044830"
-    name: "Nike Team #4 - Elevate the Athlete"
+    name: "Elevate the Athlete"
+    # name: "Nike Team #4 - Elevate the Athlete"
     projects: []
     ignoreProjectIds: [
       57753556680355
@@ -78,7 +82,8 @@ teams = {
   }
   56909588915212: {
     id: "56909588915212",
-    name: "Nike Team #5 - Command Center"
+    name: "Command Center"
+    # name: "Nike Team #5 - Command Center"
     projects: []
 
     ignoreProjectIds: [
