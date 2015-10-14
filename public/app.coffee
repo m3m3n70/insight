@@ -77,7 +77,7 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
     return
 
   generateInitialWowMeter = () ->
-    console.log $scope.wowTimes
+    # console.log $scope.wowTimes
     bindTo = "#wow-chart"
     chart = c3.generate(
       bindto: bindTo
@@ -92,7 +92,7 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
           $scope.wowCounts
         ]
         # colors: ["Wows", "#ff00aa"]
-        type: 'bar'
+        type: 'area'
 
       axis: x:
         type: 'timeseries'

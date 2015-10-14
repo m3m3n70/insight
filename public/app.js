@@ -90,7 +90,6 @@
     };
     generateInitialWowMeter = function() {
       var bindTo, chart;
-      console.log($scope.wowTimes);
       bindTo = "#wow-chart";
       chart = c3.generate({
         bindto: bindTo,
@@ -101,7 +100,7 @@
         data: {
           x: "x",
           columns: [$scope.wowTimes, $scope.wowCounts],
-          type: 'bar'
+          type: 'area'
         },
         axis: {
           x: {
