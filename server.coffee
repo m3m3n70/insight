@@ -20,11 +20,77 @@ deadTagId = 57545435627266
 
 # Hardcoded for Nike, but will be able to pull from asana in the future
 teams = {
-  56815679044828: { id: "56815679044828", name: 'Nike Team #1 - Invite & Join'       , projects: [], taskCount: 0}
-  56815685307709: { id: "56815685307709", name: 'Nike Team #2 - Do More, Do Better'  , projects: [], taskCount: 0}
-  56815679044829: { id: "56815679044829", name: 'Nike Team #3 - Inside Access'       , projects: [], taskCount: 0}
-  56815679044830: { id: "56815679044830", name: 'Nike Team #4 - Elevate the Athlete' , projects: [], taskCount: 0}
-  56909588915212: { id: "56909588915212", name: 'Nike Team #5 - Command Center'      , projects: [], taskCount: 0}
+  56815679044828: {
+    id: "56815679044828"
+    name: "Nike Team #1 - Invite & Join"
+    projects: []
+    ignoreProjectIds: [
+      57753556680343
+      57753556680345
+      57753556680363
+    ]
+    wowProjectId: 57753556680345
+    validatedProjectId: 57753556680343
+    deadProjectId: 57753556680363
+    taskCount: 0
+  }
+  56815685307709: {
+    id: "56815685307709"
+    name: "Nike Team #2 - Do More, Do Better"
+    projects: []
+    ignoreProjectIds: [
+      57753556680347
+      57753556680349
+      57753556680365
+    ]
+    wowProjectId: 57753556680349
+    validatedProjectId: 57753556680347
+    deadProjectId: 57753556680365
+    taskCount: 0
+  }
+  56815679044829: {
+    id: "56815679044829"
+    name: "Nike Team #3 - Inside Access"
+    projects: []
+    ignoreProjectIds: [
+      57753556680351
+      57753556680353
+      57753556680367
+    ]
+    wowProjectId: 57753556680353
+    validatedProjectId: 57753556680351
+    deadProjectId: 57753556680367
+    taskCount: 0
+  }
+  56815679044830: {
+    id: "56815679044830"
+    name: "Nike Team #4 - Elevate the Athlete"
+    projects: []
+    ignoreProjectIds: [
+      57753556680355
+      57753556680357
+      57753556680371
+    ]
+    wowProjectId: 57753556680357
+    validatedProjectId: 57753556680355
+    deadProjectId: 57753556680371
+    taskCount: 0
+  }
+  56909588915212: {
+    id: "56909588915212",
+    name: "Nike Team #5 - Command Center"
+    projects: []
+
+    ignoreProjectIds: [
+      57753556680359
+      57753556680361
+      57753556680373
+    ]
+    wowProjectId: 57753556680361
+    validatedProjectId: 57753556680359
+    deadProjectId: 57753556680373
+    taskCount: 0
+  }
 }
 
 # Hardcoded for Nike, but will be able to pull from asana in the future
@@ -72,13 +138,13 @@ setupHeartbeatEmitter = (socket) ->
   heartbeat(null, socket)
   setInterval ->
     heartbeat(null, socket)
-  , 15000
+  , 45000
 
 heartbeat = (res) ->
   console.log("heartbeat")
   # 1. Get the teams
-  teamIds = teamIds # hardcoded for now
-  ret = JSON.parse(JSON.stringify(teams)) # hardcoded for now, clone it!
+  # teamIds = teamIds # hardcoded for now
+
 
   # TODO: refactor the steps into chained promises using Q
 
@@ -92,6 +158,7 @@ heartbeat = (res) ->
     projs = response.data
     count = 0
     # Get the full project objects to get the color of the project
+    ret = JSON.parse(JSON.stringify(teams)) # hardcoded for now, clone it!
     for proj in projs
       do (proj) ->
         id = proj.id
@@ -100,10 +167,10 @@ heartbeat = (res) ->
           count++
           # Only return once all the async calls have completed
           if count == projs.length
-            findTasks(projects)
+            findTasks(projects, ret)
 
   # 2. Get the tasks for each project
-  findTasks = (projects) ->
+  findTasks = (projects, ret) ->
     count = 0
     for proj in projects
       do (proj) ->
@@ -114,45 +181,52 @@ heartbeat = (res) ->
           count++
           # Only return once all the async calls have completed
           if count == projects.length
-            assignProjectsToTeams(projects)
+            assignProjectsToTeams(projects, ret)
 
   # 3. Hook the projects up to their respective teams
-  assignProjectsToTeams = (projects) ->
+  # 4. Grab the tasks marked with "wow"
+  # 5. Grab the tasks marked with "dead"
+  # 6. Grab the tasks marked with "validated"
+  assignProjectsToTeams = (projects, ret) ->
     for proj in projects
-      # WHY IS THIS CAUSING A BUG?
-      if ret[proj.team.id]
-        ret[proj.team.id].projects.push(proj)
-        ret[proj.team.id].taskCount += proj["taskCount"]
-    getTaggedTasks(projects)
+      team = ret[proj.team.id]
+      continue unless team
+      if proj.id == team.wowProjectId
+        team.wowTasks = proj.tasks
+      else if proj.id == team.deadProjectId
+        team.deadTasks = proj.tasks
+      else if proj.id == team.validatedProjectId
+        team.validatedTasks = proj.tasks
+      else
+        team.projects.push(proj)
+        team.taskCount += proj["taskCount"]
 
-  # 4. Grab the count of tasks marked with "wow"
-  # 5. Grab the count of tasks marked with "dead"
-  getTaggedTasks = (projects) ->
-    count = 0
-    wowTasks = null
-    deadTasks = null
+    buildEmitResponse(ret)
 
-    client.tasks.findByTag(wowTagId).then (response) ->
-      wowTasks = response.data
-      count++
-      if count == 2
-        buildEmitResponse(projects, wowTasks, deadTasks)
+  # getTaggedTasks = (projects) ->
+  #   count = 0
+  #   wowTasks = null
+  #   deadTasks = null
 
-    client.tasks.findByTag(deadTagId).then (response) ->
-      deadTasks = response.data
-      count++
-      if count == 2
-        buildEmitResponse(projects, wowTasks, deadTasks)
+  #   client.tasks.findByTag(wowTagId).then (response) ->
+  #     wowTasks = response.data
+  #     count++
+  #     if count == 2
+  #       buildEmitResponse(projects, wowTasks, deadTasks)
+
+  #   client.tasks.findByTag(deadTagId).then (response) ->
+  #     deadTasks = response.data
+  #     count++
+  #     if count == 2
+  #       buildEmitResponse(projects, wowTasks, deadTasks)
 
 
-  buildEmitResponse = (projects, wowTasks, deadTasks) ->
+  buildEmitResponse = (ret) ->
     keys = Object.keys(ret)
     vals = keys.map (v) -> ret[v]
 
     cur = {
       teams: vals
-      wowTasks: wowTasks
-      deadTasks: deadTasks
     }
 
     heartbeats[0] = cur
