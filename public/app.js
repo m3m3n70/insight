@@ -14,7 +14,18 @@
   });
 
   mainController = function($scope, $timeout, $socket, InsightFactory) {
-    var asanaColors, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, rotator_builder, updateOnHeartbeat;
+    var asanaColors, conditionallyAddTask, generateAllTasks, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeTaskRotator, shuffle, updateOnHeartbeat;
+    shuffle = function(o) {
+      var i, j, x;
+      i = o.length;
+      while (i) {
+        j = Math.floor(Math.random() * i);
+        x = o[--i];
+        o[i] = o[j];
+        o[j] = x;
+      }
+      return o;
+    };
     generateChartForTeam = function(team, i) {
       var i;
       var $pies, $teamChart, $teamChartOld, bindTo, chart, chartColors, chartData, display_name, project, projects;
@@ -130,17 +141,16 @@
       chartData = {
         columns: [$scope.wowTimes, $scope.wowCounts]
       };
-      console.log(chartData);
       return $scope.wowChart.load(chartData);
     };
     generateGraveyardForTeams = function(teams) {
-      var $graveyard, $img, deadTasks, fn, i, j, left, len, maxX, maxY, results, team, top;
+      var $graveyard, $img, deadTasks, fn, i, k, left, len, maxX, maxY, results, team, top;
       deadTasks = [];
       fn = function(team) {
         return deadTasks = deadTasks.concat(team.deadTasks);
       };
-      for (j = 0, len = teams.length; j < len; j++) {
-        team = teams[j];
+      for (k = 0, len = teams.length; k < len; k++) {
+        team = teams[k];
         fn(team);
       }
       $graveyard = $('#graveyard');
@@ -183,26 +193,28 @@
       return results;
     };
     $scope.wowTaskIds = {};
+    $scope.wowTasks = [];
     generateWowTasks = function(teams) {
-      var j, len, results, team, tempWowTasks;
+      var k, len, results, team, tempWowTasks;
       tempWowTasks = [];
       results = [];
-      for (j = 0, len = teams.length; j < len; j++) {
-        team = teams[j];
+      for (k = 0, len = teams.length; k < len; k++) {
+        team = teams[k];
         results.push((function(team) {
-          var k, len1, ref, results1, task;
+          var l, len1, ref, results1, task;
           ref = team.wowTasks;
           results1 = [];
-          for (k = 0, len1 = ref.length; k < len1; k++) {
-            task = ref[k];
+          for (l = 0, len1 = ref.length; l < len1; l++) {
+            task = ref[l];
             if ($scope.wowTaskIds[task.id]) {
               continue;
             } else {
               $scope.wowTaskIds[task.id] = true;
-              results1.push($scope.wowTasks.push({
+              $scope.wowTasks.push({
                 teamName: team.name,
                 task: task
-              }));
+              });
+              results1.push(true);
             }
           }
           return results1;
@@ -210,42 +222,113 @@
       }
       return results;
     };
-    rotator_builder = function(selector, args) {
-      var $items, cur, loop_fn, num_items, prev, show_dur, trans_in, trans_in_dur, trans_out, trans_out_dur;
-      trans_in = args.trans_in || "fadeIn";
-      trans_out = args.trans_out || "fadeOut";
-      trans_in_dur = args.trans_in_dur || 1000;
-      trans_out_dur = args.trans_out_dur || 400;
-      show_dur = args.show_dur || 7000;
-      $items = $(selector);
-      num_items = $items.length;
-      cur = 0;
-      prev = num_items - 1;
-      loop_fn = function() {
-        cur %= num_items;
-        prev %= num_items;
-        $($items[prev]).animate({
-          left: '590px'
-        }, trans_out_dur);
-        $($items[cur]).delay(trans_out_dur + 10).animate({
-          left: '590px'
-        }, trans_in_dur);
-        cur++;
-        prev++;
-        return setTimeout(loop_fn, show_dur);
+    conditionallyAddTask = function(team, task) {
+      if ($scope.allTaskIds[task.id]) {
+        return true;
+      } else {
+        $scope.allTaskIds[task.id] = true;
+        $scope.allTasks.unshift({
+          teamName: team.name,
+          task: task
+        });
+        return true;
+      }
+    };
+    $scope.allTaskIds = {};
+    $scope.allTasks = [];
+    generateAllTasks = function(teams) {
+      var firstTime, fn, fn1, i, k, l, len, len1, project, projects, ref, task, team;
+      firstTime = true;
+      if ($scope.allTasks.length > 0) {
+        firstTime = false;
+      }
+      fn = function(team) {
+        var fn1, l, len1, len2, m, ref, ref1, results, task;
+        if (team.wowTasks) {
+          ref = team.wowTasks;
+          fn1 = function(task) {
+            task.wow = true;
+            return conditionallyAddTask(team, task);
+          };
+          for (l = 0, len1 = ref.length; l < len1; l++) {
+            task = ref[l];
+            fn1(task);
+          }
+        }
+        if (team.validatedTasks) {
+          ref1 = team.validatedTasks;
+          results = [];
+          for (m = 0, len2 = ref1.length; m < len2; m++) {
+            task = ref1[m];
+            results.push((function(task) {
+              task.validated = true;
+              return conditionallyAddTask(team, task);
+            })(task));
+          }
+          return results;
+        }
       };
-      return loop_fn;
+      for (k = 0, len = teams.length; k < len; k++) {
+        team = teams[k];
+        fn(team);
+        projects = team.projects;
+        i = 0;
+        while (i < projects.length) {
+          project = projects[i];
+          ref = project.tasks;
+          fn1 = function(task) {
+            return conditionallyAddTask(team, task);
+          };
+          for (l = 0, len1 = ref.length; l < len1; l++) {
+            task = ref[l];
+            fn1(task);
+          }
+          i++;
+        }
+      }
+      if (firstTime) {
+        return shuffle($scope.allTasks);
+      }
+    };
+    $scope.taskClass = function(task) {
+      if (task.wow) {
+        return "wow";
+      }
+      if (task.validated) {
+        return "validated";
+      }
+      if (task.dead) {
+        return "dead";
+      }
+      return "";
+    };
+    initializeTaskRotator = function() {
+      return $(function() {
+        return setInterval((function() {
+          if (!($scope.allTasks.length > 0)) {
+            return;
+          }
+          return $timeout(function() {
+            var lastEl, taskId;
+            lastEl = $scope.allTasks.pop();
+            $scope.allTasks.unshift(lastEl);
+            taskId = lastEl.task.id;
+            return $("#task-" + taskId).css({
+              opacity: 0
+            }).animate({
+              opacity: 1
+            });
+          });
+        }), 10000);
+      });
     };
     updateOnHeartbeat = function(heartbeat) {
       var teams;
       teams = heartbeat.teams;
       generateChartsForTeams(teams);
       generateWowMeterForTeams(teams);
-      generateGraveyardForTeams(teams);
-      return generateWowTasks(teams);
+      return generateAllTasks(teams);
     };
-    $scope.tasks = [];
-    $scope.projects = null;
     $scope.loaded = false;
     $scope.page = 1;
     $scope.togglePage = function() {
@@ -257,27 +340,27 @@
     $scope.wowTimes = ['x', new Date()];
     $scope.wowCounts = ["Wows", 2];
     asanaColors = {
-      'dark-pink': '#ed03b1',
-      'dark-green': '#12ae3e',
-      'dark-blue': '#0056f7',
-      'dark-red': '#ee2400',
-      'dark-teal': '#008eaa',
-      'dark-brown': '#cc2f25',
-      'dark-orange': '#e17000',
-      'dark-purple': '#AA00FF',
-      'dark-warm-gray': '#6a1b21',
-      'light-pink': '#FF00AA',
-      'light-green': '#AAFF00',
-      'light-blue': '#9bbbf6',
-      'light-red': '#ffadad',
-      'light-teal': '#96d5ff',
-      'light-yellow': '#ffeda4',
-      'light-orange': '#FFAA00',
-      'light-purple': '#e4b5f5',
-      'light-warm-gray': '#e9aab1'
+      'dark-pink': "#B8D0DE",
+      'dark-green': "#9FC2D6",
+      'dark-blue': "#86B4CF",
+      'dark-red': "#107FC9",
+      'dark-teal': "#0E4EAD",
+      'dark-brown': "#0B108C",
+      'dark-orange': "#B8D0DE",
+      'dark-purple': "#9FC2D6",
+      'dark-warm-gray': "#86B4CF",
+      'light-pink': "#107FC9",
+      'light-green': "#0E4EAD",
+      'light-blue': "#0B108C",
+      'light-red': "#B8D0DE",
+      'light-teal': "#9FC2D6",
+      'light-yellow': "#86B4CF",
+      'light-orange': "#107FC9",
+      'light-purple': "#0E4EAD",
+      'light-warm-gray': "#0B108C"
     };
     init = function() {
-      rotator_builder(".wow-task-card", {})();
+      initializeTaskRotator();
       return generateInitialWowMeter();
     };
     init();

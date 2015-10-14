@@ -4,6 +4,7 @@ app = express()
 server = require("http").Server(app)
 io = require("socket.io")(server)
 asana = require("asana")
+fs = require("fs")
 
 # Config
 
@@ -11,6 +12,8 @@ apiKey = "gbNGGU78.LoEgfkUIdCHOOxCQoI8Mm3R"
 workspaceId = 20868448192120 # fact0ry organization workspace
 wowTagId = 57545435627264
 deadTagId = 57545435627266
+
+heartbeatDelay = 60000
 
 # wowTagId = 57532266416864
 # deadTagId = 56967458494204
@@ -143,10 +146,11 @@ setupHeartbeatEmitter = (socket) ->
   heartbeat(null, socket)
   setInterval ->
     heartbeat(null, socket)
-  , 60000
+  , heartbeatDelay
 
 heartbeat = (res) ->
   console.log("Starting heartbeat")
+  console.log(new Date())
   # 1. Get the teams
   # teamIds = teamIds # hardcoded for now
 
@@ -164,30 +168,37 @@ heartbeat = (res) ->
     count = 0
     # Get the full project objects to get the color of the project
     ret = JSON.parse(JSON.stringify(teams)) # hardcoded for now, clone it!
+    i = 0
     for proj in projs
       do (proj) ->
+        i++
         id = proj.id
-        client.projects.findById(id).then (response) ->
-          projects.push(response)
-          count++
-          # Only return once all the async calls have completed
-          if count == projs.length
-            findTasks(projects, ret)
+        setTimeout ->
+          client.projects.findById(id).then (response) ->
+            projects.push(response)
+            count++
+            # Only return once all the async calls have completed
+            if count == projs.length
+              findTasks(projects, ret)
+        , i * 250
 
   # 2. Get the tasks for each project
   findTasks = (projects, ret) ->
     count = 0
+    i = 0
     for proj in projects
       do (proj) ->
+        i++
         id = proj.id
-        client.tasks.findByProject(id, {completed_since: "now"}).then (collection) ->
-          proj["tasks"] = collection.data
-          proj["taskCount"] = collection.data.length
-          count++
-          # Only return once all the async calls have completed
-          if count == projects.length
-            assignProjectsToTeams(projects, ret)
-
+        setTimeout ->
+          client.tasks.findByProject(id, {completed_since: "now"}).then (collection) ->
+            proj["tasks"] = collection.data
+            proj["taskCount"] = collection.data.length
+            count++
+            # Only return once all the async calls have completed
+            if count == projects.length
+              assignProjectsToTeams(projects, ret)
+        , i * 1000
   # 3. Hook the projects up to their respective teams
   # 4. Grab the tasks marked with "wow"
   # 5. Grab the tasks marked with "dead"
@@ -240,6 +251,7 @@ heartbeat = (res) ->
     if res
       res.send(cur)
     console.log("Sent heartbeat")
+    console.log(new Date())
 
   client.projects.findByWorkspace(workspaceId).then projectsCallback
 

@@ -2,6 +2,7 @@ app = angular.module('insight', [
   'socket.io'
   'ngAnimate'
 ])
+
 app.config ($socketProvider) ->
   url = '/'
   if window.location.host.match(/localhost/)
@@ -10,6 +11,15 @@ app.config ($socketProvider) ->
 
 # TODO: move to another file
 mainController = ($scope, $timeout, $socket, InsightFactory) ->
+
+  shuffle = (o) ->
+    i = o.length
+    while i
+      j = Math.floor(Math.random() * i)
+      x = o[--i]
+      o[i] = o[j]
+      o[j] = x
+    o
 
   generateChartForTeam = (team, i) ->
     `var i`
@@ -119,7 +129,7 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
       ]
     }
 
-    console.log(chartData)
+    # console.log(chartData)
     $scope.wowChart.load(chartData)
 
   generateGraveyardForTeams = (teams) ->
@@ -167,6 +177,7 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
       i++
 
   $scope.wowTaskIds = {}
+  $scope.wowTasks = []
 
   generateWowTasks = (teams) ->
     tempWowTasks = []
@@ -183,41 +194,78 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
                 task: task
               }
             )
+            true
 
+  conditionallyAddTask = (team, task) ->
+    # console.log(team)
+    # console.log(task)
+    if $scope.allTaskIds[task.id]
+      true
+    else
+      $scope.allTaskIds[task.id] = true
+      $scope.allTasks.unshift(
+        {
+          teamName: team.name
+          task: task
+        }
+      )
+      true
 
+  $scope.allTaskIds = {}
+  $scope.allTasks = []
+  generateAllTasks = (teams) ->
+    # console.log(teams)
+    firstTime = true
+    if $scope.allTasks.length > 0
+      firstTime = false
+    for team in teams
+      do (team) ->
+        if team.wowTasks
+          for task in team.wowTasks
+            do (task) ->
+              task.wow = true
+              conditionallyAddTask(team, task)
+        if team.validatedTasks
+          for task in team.validatedTasks
+            do (task) ->
+              task.validated = true
+              conditionallyAddTask(team, task)
+      projects = team.projects
+      i = 0
+      while i < projects.length
+        project = projects[i]
+        for task in project.tasks
+          do (task) ->
+            conditionallyAddTask(team, task)
+        i++
+    if firstTime
+      shuffle($scope.allTasks)
 
-  rotator_builder = (selector, args) ->
-    trans_in = args.trans_in || "fadeIn"
-    trans_out = args.trans_out || "fadeOut"
-    trans_in_dur = args.trans_in_dur || 1000
-    trans_out_dur = args.trans_out_dur || 400
-    show_dur = args.show_dur || 7000
+  $scope.taskClass = (task) ->
+    return "wow" if task.wow
+    return "validated" if task.validated
+    return "dead" if task.dead
+    ""
 
-    $items = $(selector)
-    num_items = $items.length
-    cur = 0
-    prev = num_items - 1
-    loop_fn = () ->
-      cur %=  num_items
-      prev %= num_items
-      $($items[prev]).animate({left: '590px'}, trans_out_dur)
-      $($items[cur]).delay(trans_out_dur+10).animate({left: '590px'}, trans_in_dur)
-      # need that +10 to make sure there's no overlap and the prev item is completely gone
-      cur++
-      prev++
-      setTimeout loop_fn, show_dur
-    loop_fn
+  initializeTaskRotator = () ->
+    $ ->
+      setInterval (->
+        return unless $scope.allTasks.length > 0
+        $timeout ->
+          lastEl = $scope.allTasks.pop()
+          $scope.allTasks.unshift(lastEl)
+          taskId = lastEl.task.id
+          $("#task-#{taskId}").css({opacity: 0}).animate({opacity: 1})
+      ), 10000
 
   updateOnHeartbeat = (heartbeat) ->
     teams = heartbeat.teams
     generateChartsForTeams teams
     generateWowMeterForTeams teams
-    generateGraveyardForTeams teams
-    generateWowTasks teams
+    generateAllTasks teams
+    # generateGraveyardForTeams teams
+    # generateWowTasks teams
 
-
-  $scope.tasks = []
-  $scope.projects = null
   $scope.loaded = false
   $scope.page = 1
 
@@ -227,34 +275,32 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
     $scope.page = 1
 
   $scope.wowTimes =  ['x', new Date()]
-
-  # ['2015-10-13 10:00:00', '2015-10-13 10:05:00', '2015-10-13 10:10:00', '2015-10-13 10:15:00', '2015-10-13 10:20:00', '2015-10-13 10:25:00', '2015-10-13 10:30:00', '2015-10-13 10:35:00', '2015-10-13 10:40:00', '2015-10-13 10:45:00', '2015-10-13 10:50:00', '2015-10-13 10:55:00']
   $scope.wowCounts = ["Wows", 2]
   # TODO: move to a constant
 
   asanaColors =
-    'dark-pink':       '#ed03b1'
-    'dark-green':      '#12ae3e'
-    'dark-blue':       '#0056f7'
-    'dark-red':        '#ee2400'
-    'dark-teal':       '#008eaa'
-    'dark-brown':      '#cc2f25'
-    'dark-orange':     '#e17000'
-    'dark-purple':     '#AA00FF'
-    'dark-warm-gray':  '#6a1b21'
-    'light-pink':      '#FF00AA'
-    'light-green':     '#AAFF00'
-    'light-blue':      '#9bbbf6'
-    'light-red':       '#ffadad'
-    'light-teal':      '#96d5ff'
-    'light-yellow':    '#ffeda4'
-    'light-orange':    '#FFAA00'
-    'light-purple':    '#e4b5f5'
-    'light-warm-gray': '#e9aab1'
+    'dark-pink':      "#B8D0DE" # '#ed03b1'
+    'dark-green':     "#9FC2D6" # '#12ae3e'
+    'dark-blue':      "#86B4CF" # '#0056f7'
+    'dark-red':       "#107FC9" # '#ee2400'
+    'dark-teal':      "#0E4EAD" # '#008eaa'
+    'dark-brown':     "#0B108C" # '#cc2f25'
+    'dark-orange':    "#B8D0DE" # '#e17000'
+    'dark-purple':    "#9FC2D6" # '#AA00FF'
+    'dark-warm-gray': "#86B4CF" # '#6a1b21'
+    'light-pink':     "#107FC9" # '#FF00AA'
+    'light-green':    "#0E4EAD" # '#AAFF00'
+    'light-blue':     "#0B108C" # '#9bbbf6'
+    'light-red':      "#B8D0DE" # '#ffadad'
+    'light-teal':     "#9FC2D6" # '#96d5ff'
+    'light-yellow':   "#86B4CF" # '#ffeda4'
+    'light-orange':   "#107FC9" # '#FFAA00'
+    'light-purple':   "#0E4EAD" # '#e4b5f5'
+    'light-warm-gray':"#0B108C" # '#e9aab1'
 
 
   init = () ->
-    rotator_builder(".wow-task-card", {})()
+    initializeTaskRotator()
     generateInitialWowMeter()
 
   init()

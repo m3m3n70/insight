@@ -24,17 +24,13 @@
         <div class="row pies" id="pies-1" ng-show="loaded">
 
         </div>
-
-        <div class="row" id="wow-tasks">
-          <ul>
-            <li class="wow-task-card " ng-if="wowTask.task.name.length > 0" ng-repeat="wowTask in wowTasks">
-              <h2>
-                {{wowTask.teamName}}
-              </h2>
-              <p>{{ wowTask.task.name }}</p>
-            </li>
-          </ul>
+        <div class="row pies" id="pies-2" ng-show="loaded">
         </div>
+        <div class="row wow">
+          <div id="wow-chart">
+          </div>
+        </div>
+
 
         <!--       <div
                 class="project-with-tasks"
@@ -53,21 +49,43 @@
         <div class="loader" ng-show="!loaded">
           <img src="images/ripple.svg" />
         </div>
+<!--         <div class="row" id="wow-tasks">
+          <ul>
+            <li class="wow-task-card " ng-if="wowTask.task.name.length > 0" ng-repeat="wowTask in wowTasks">
+              <h2>
+                {{wowTask.teamName}}
+              </h2>
+              <p>{{ wowTask.task.name }}</p>
+            </li>
+          </ul>
+        </div> -->
 
-        <div class="row pies" id="pies-2" ng-show="loaded">
-        </div>
-        <div class="row wow">
-          <div id="wow-chart">
-          </div>
-        </div>
-        <div id="wow-gif">
+      <div class="row" id="all-tasks">
+        <ul>
+          <li
+            class="task-card "
+            id="task-{{theTask.task.id}}"
+            ng-class="taskClass(theTask.task)"
+            ng-if="theTask.task.name.length > 0"
+            ng-repeat="theTask in allTasks">
+            <h2>
+              {{theTask.teamName}}
+            </h2>
+            <p>{{ theTask.task.name }}</p>
+          </li>
+        </ul>
+      </div>
+
+
+
+<!--         <div id="wow-gif">
           <img src="images/wow1.gif" />
-        </div>
+        </div> -->
 
-        <div class="row" id="graveyard">
+<!--         <div class="row" id="graveyard">
 
 
-        </div>
+        </div> -->
 
       </div>
 
