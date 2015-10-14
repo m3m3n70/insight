@@ -67,43 +67,27 @@ li.ng-enter-active {
     opacity: 1;
 }
 
-.project .task
-
-
-
-
-/*body{
-  perspective: 1000000000000000000000000px;
+.team{
+  float:left;
+  text-align: center;
 }
 
-.cube {
+.team-0, .team-1, .team-2{
+  width: 33%;
+}
+
+.team-3, .team-4{
+  width: 50%;
+}
+
+.pie-chart{
   width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
 }
 
-.cube figure {
-  margin: 0;
-  display: block;
+.page-toggle{
+  display:block;
+  background: #efefef;
+  width: 25px;
+  height: 25px;
+  position: absolute;
 }
-
-
-
-.cube .front  { transform: rotateY(   0deg ) translateZ( 100px ); }
-.cube .back   { transform: rotateX( 180deg ) translateZ( 100px ); }
-.cube .right  { transform: rotateY(  90deg ) translateZ( 100px ); }
-.cube .left   { transform: rotateY( -90deg ) translateZ( 100px ); }
-.cube .top    { transform: rotateX(  90deg ) translateZ( 100px ); }
-.cube .bottom { transform: rotateX( -90deg ) translateZ( 100px ); }
-
-.cube { transition: transform 1s; }
-
-.cube.show-front  { transform: translateZ( -100px ) rotateY(    0deg ); }
-.cube.show-back   { transform: translateZ( -100px ) rotateX( -180deg ); }
-.cube.show-right  { transform: translateZ( -100px ) rotateY(  -90deg ); }
-.cube.show-left   { transform: translateZ( -100px ) rotateY(   90deg ); }
-.cube.show-top    { transform: translateZ( -100px ) rotateX(  -90deg ); }
-.cube.show-bottom { transform: translateZ( -100px ) rotateX(   90deg ); }
-
-
-*/

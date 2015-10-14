@@ -3,7 +3,7 @@ var app = angular.module('insight', [ 'socket.io', 'ngAnimate' ]);
 app.config(function ($socketProvider) {
   var url = "/";
   if(window.location.host.match(/localhost/)){
-    url = "http://localhost:8080";
+    url = "http://localhost:8000";
   }
 
   $socketProvider.setConnectionUrl(url);
@@ -16,6 +16,13 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
   $scope.tasks = [];
   $scope.projects = null;
   $scope.loaded = false;
+  $scope.page = 1;
+  $scope.togglePage = function(){
+    if($scope.page === 1){
+      return $scope.page = 2;
+    }
+    $scope.page = 1;
+  }
 
   // TODO: move to a constant
   asanaColors = {
@@ -39,11 +46,38 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
     "light-warm-gray": "#cec5c6"
   } ;
 
-  function generateChartForTeam(team){
-    var $pies = $("#pies");
+  asanaColors = {
+    "dark-pink": "#ed03b1",
+    "dark-green": "#12ae3e",
+    "dark-blue": "#0056f7",
+    "dark-red": "#ee2400",
+    "dark-teal": "#008eaa",
+    "dark-brown": "#cc2f25",
+    "dark-orange": "#e17000",
+    "dark-purple": "#5105f0",
+    "dark-warm-gray": "#6a1b21",
+    "light-pink": "#ffabdd",
+    "light-green": "#d7fd7a",
+    "light-blue": "#9bbbf6",
+    "light-red": "#ffadad",
+    "light-teal": "#96d5ff",
+    "light-yellow": "#ffeda4",
+    "light-orange": "#ffcca5",
+    "light-purple": "#e4b5f5",
+    "light-warm-gray": "#e9aab1"
+  } ;
 
-    $teamChart = $("<div id='team-" + team["id"] +"'></div>");
-    $teamChart.append("<h2>" + team["name"] + "</h2>");
+
+  function generateChartForTeam(team, i){
+    var $pies = $("#pies-1");
+    if(i > 2){
+      $pies = $("#pies-2");
+    }
+
+    var display_name = team["name"].substring(15,99999) // Strip off "Nike Team #1"
+
+    $teamChart = $("<div class='team team-" + i +"' id='team-" + team["id"] +"'></div>");
+    $teamChart.append("<h2>" + display_name + "</h2>");
     $teamChart.append("<div class='pie-chart'></div>");
 
     var $teamChartOld = $pies.find("#team-" + team["id"]);
@@ -82,6 +116,9 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
             // onclick: function (d, i) { console.log("onclick", d, i); },
             // onmouseover: function (d, i) { console.log("onmouseover", d, i); },
             // onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+        },
+        legend: {
+          hide: true
         }
     });
 
@@ -91,7 +128,7 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
   }
 
   function updateOnHeartbeat(heartbeat){
-    var maxWidth = 1080.0;
+    var maxWidth = 900.0;
     var totalTaskCount = 0.0;
     var team, chart, diameter;
 
@@ -112,7 +149,7 @@ var mainController = function ($scope, $timeout, $socket, InsightFactory) {
       team.diameter = diameter;
 
       // Then render the chart
-      generateChartForTeam(team);
+      generateChartForTeam(team, i);
     }
   }
 
