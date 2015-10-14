@@ -14,7 +14,7 @@
   });
 
   mainController = function($scope, $timeout, $socket, InsightFactory) {
-    var asanaColors, generateChartForTeam, generateChartsForTeams, generateInitialWowMeter, generateWowMeterForTeams, updateOnHeartbeat;
+    var asanaColors, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, updateOnHeartbeat;
     generateChartForTeam = function(team, i) {
       var i;
       var $pies, $teamChart, $teamChartOld, bindTo, chart, chartColors, chartData, display_name, project, projects;
@@ -70,7 +70,7 @@
     };
     generateChartsForTeams = function(teams) {
       var diameter, i, maxWidth, team, totalTaskCount;
-      maxWidth = 900.0;
+      maxWidth = 1800.0;
       totalTaskCount = 0.0;
       diameter = void 0;
       i = 0;
@@ -133,11 +133,43 @@
       console.log(chartData);
       return $scope.wowChart.load(chartData);
     };
+    generateGraveyardForTeams = function(teams) {
+      var $graveyard, $img, deadTasks, fn, i, j, left, len, maxX, maxY, results, team, top;
+      deadTasks = [];
+      fn = function(team) {
+        return deadTasks = deadTasks.concat(team.deadTasks);
+      };
+      for (j = 0, len = teams.length; j < len; j++) {
+        team = teams[j];
+        fn(team);
+      }
+      $graveyard = $('#graveyard');
+      $('#graveyard').empty();
+      maxX = 900;
+      maxY = 450;
+      left = 0;
+      top = 0;
+      i = 0;
+      results = [];
+      while (i < deadTasks.length) {
+        left = Math.floor(Math.random() * maxX / 95) * 95;
+        top = Math.floor(Math.random() * maxY / 150) * 150;
+        $img = $('<img src=\'images/grave2.png\' width=100 title=\'' + deadTasks[i].name + '\' />');
+        $img.css({
+          left: left,
+          bottom: top
+        });
+        $('#graveyard').append($img);
+        results.push(i++);
+      }
+      return results;
+    };
     updateOnHeartbeat = function(heartbeat) {
       var teams;
       teams = heartbeat.teams;
       generateChartsForTeams(teams);
-      return generateWowMeterForTeams(teams);
+      generateWowMeterForTeams(teams);
+      return generateGraveyardForTeams(teams);
     };
     $scope.tasks = [];
     $scope.projects = null;

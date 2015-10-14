@@ -56,7 +56,7 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
     chart
 
   generateChartsForTeams = (teams) ->
-    maxWidth = 900.0
+    maxWidth = 1800.0
     totalTaskCount = 0.0
     diameter = undefined
     # Set the totalTaskCount
@@ -123,11 +123,38 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
     console.log(chartData)
     $scope.wowChart.load(chartData)
 
+  generateGraveyardForTeams = (teams) ->
+    deadTasks = []
+    for team in teams
+      do (team) ->
+        deadTasks = deadTasks.concat(team.deadTasks)
+
+    $graveyard = $('#graveyard')
+
+    $('#graveyard').empty();
+
+    maxX = 900
+    maxY = 450
+    left = 0
+    top = 0
+    i = 0
+    while i < deadTasks.length
+      left = Math.floor(Math.random() * maxX / 95) * 95
+      top = Math.floor(Math.random() * maxY / 150) * 150
+      $img = $('<img src=\'images/grave2.png\' width=100 title=\'' + deadTasks[i].name + '\' />')
+      $img.css
+        left: left
+        bottom: top
+      $('#graveyard').append $img
+      i++
+
+
+
   updateOnHeartbeat = (heartbeat) ->
     teams = heartbeat.teams
     generateChartsForTeams teams
     generateWowMeterForTeams teams
-
+    generateGraveyardForTeams (teams)
 
 
   $scope.tasks = []

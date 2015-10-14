@@ -138,10 +138,10 @@ setupHeartbeatEmitter = (socket) ->
   heartbeat(null, socket)
   setInterval ->
     heartbeat(null, socket)
-  , 45000
+  , 60000
 
 heartbeat = (res) ->
-  console.log("heartbeat")
+  console.log("Starting heartbeat")
   # 1. Get the teams
   # teamIds = teamIds # hardcoded for now
 
@@ -234,7 +234,7 @@ heartbeat = (res) ->
     emitAllClients "heartbeat", cur
     if res
       res.send(cur)
-
+    console.log("Sent heartbeat")
 
   client.projects.findByWorkspace(workspaceId).then projectsCallback
 

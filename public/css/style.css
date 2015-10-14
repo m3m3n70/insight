@@ -2,11 +2,12 @@
   font-family: Helvetica Neue,sans-serif;
 }
 
-html,body{
+html,body, #page-1, #page-2{
   height: 1920px;
   width: 1080px;
   padding:0;
   margin:0;
+  float: left;
 }
 
 body{
@@ -104,3 +105,39 @@ li.ng-enter-active {
   height: 33%;
   float: left;
 }
+
+
+#wow-gif{
+  background: #fff;
+  width: 100%;
+  text-align: center;
+  line-height: 640px;
+  position: absolute;
+  top: 640px;
+  display: none;
+}
+
+#graveyard{
+  padding-top:100px;
+  width: 1080px;
+  height: 500px;
+  display: flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-flow: row wrap;
+  justify-content: space-around;
+
+}
+
+#graveyard img{
+  width: 100px;
+  height: 150px;
+}
+
+#wow-gif img{
+  width: 100%;
+}
+
+
