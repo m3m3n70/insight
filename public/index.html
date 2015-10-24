@@ -8,8 +8,13 @@
     <script src="vendor/d3.min.js" charset="utf-8"></script>
     <script src="vendor/c3/c3.min.js"></script>
     <script src="vendor/jquery-1.11.3.min.js"></script>
+    <script src="vendor/ng-sortable.js"></script>
+
+
+    <script src="https://cdn.firebase.com/js/client/2.3.1/firebase.js"></script>
 
     <link href="css/c3/c3.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="css/ng-sortable.css">
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
@@ -49,49 +54,54 @@
         <div class="loader" ng-show="!loaded">
           <img src="images/ripple.svg" />
         </div>
-<!--         <div class="row" id="wow-tasks">
+        <div class="row" id="all-tasks">
           <ul>
-            <li class="wow-task-card " ng-if="wowTask.task.name.length > 0" ng-repeat="wowTask in wowTasks">
+            <li
+              class="task-card "
+              id="task-{{theTask.task.id}}"
+              ng-class="taskClass(theTask.task)"
+              ng-if="theTask.task.name.length > 0"
+              ng-repeat="theTask in allTasks">
               <h2>
-                {{wowTask.teamName}}
+                {{theTask.teamName}}
               </h2>
-              <p>{{ wowTask.task.name }}</p>
+              <p>{{ theTask.task.name }}</p>
             </li>
           </ul>
-        </div> -->
-
-      <div class="row" id="all-tasks">
-        <ul>
-          <li
-            class="task-card "
-            id="task-{{theTask.task.id}}"
-            ng-class="taskClass(theTask.task)"
-            ng-if="theTask.task.name.length > 0"
-            ng-repeat="theTask in allTasks">
-            <h2>
-              {{theTask.teamName}}
-            </h2>
-            <p>{{ theTask.task.name }}</p>
-          </li>
-        </ul>
+        </div>
       </div>
+      <div id="page-3" ng-show="page === 3">
+        <a class="page-toggle" ng-click="togglePage()"> </a>
+        <br />
+        <h2>ADMIN UI</h2>
+        <div class="loader" ng-show="!loaded">
+          <img src="images/ripple.svg" />
+        </div>
+        <div class="row" id="solid-tasks">
+          <form ng-submit="addSolidTask()">
+            <input type="text" id="new-solid-task" ng-model="newSolidTask.task"/>
+            <input type="text" id="new-solid-task-rating" ng-model="newSolidTask.rating"/>
+            <input type="submit" value="SUBMIT"/>
+          </form>
 
+          <ul data-as-sortable="dragControlListeners" data-ng-model="solidTasks">
+             <li
+                class="task-card "
+                ng-repeat="theTask in solidTasks"
+                id="solid-{{ theTask.id }}"
+                data-task-id="{{ theTask.id }}"
+                data-as-sortable-item>
+                <h2 data-as-sortable-item-handle>
+                  {{ theTask.rating }} - {{theTask.task}}
+                </h2>
+                <a ng-click="removeSolidTask(theTask.id)" class="remove">X</a>
 
-
-<!--         <div id="wow-gif">
-          <img src="images/wow1.gif" />
-        </div> -->
-
-<!--         <div class="row" id="graveyard">
-
-
-        </div> -->
-
+             </li>
+          </ul>
+        </div>
       </div>
-
 
     </div>
-
     <script src="app.js"></script>
   </body>
 </html>

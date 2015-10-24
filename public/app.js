@@ -2,19 +2,19 @@
 (function() {
   var InsightFactory, app, mainController;
 
-  app = angular.module('insight', ['socket.io', 'ngAnimate']);
+  app = angular.module("insight", ["socket.io", "ngAnimate", "as.sortable"]);
 
   app.config(function($socketProvider) {
     var url;
-    url = '/';
+    url = "/";
     if (window.location.host.match(/localhost/)) {
       url = 'http://localhost:8000';
     }
     return $socketProvider.setConnectionUrl(url);
   });
 
-  mainController = function($scope, $timeout, $socket, InsightFactory) {
-    var asanaColors, conditionallyAddTask, generateAllTasks, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeTaskRotator, processCsv, shuffle, updateOnHeartbeat;
+  mainController = function($scope, $timeout, $socket, $filter, InsightFactory) {
+    var asanaColors, conditionallyAddTask, fireBaseUrl, firebaseRef, firebaseSolidTasks, generateAllTasks, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeSolidTasks, initializeTaskRotator, processCsv, shuffle, sortSolidTasks, updateOnHeartbeat;
     shuffle = function(o) {
       var i, j, x;
       i = o.length;
@@ -120,7 +120,6 @@
     generateInitialWowMeter = function() {
       return InsightFactory.getInitialWowCounts().then(function(data) {
         var bindTo, chart, rows;
-        console.log(data.data);
         rows = processCsv(data.data);
         $scope.wowTimes = rows.map(function(a) {
           var x;
@@ -373,6 +372,9 @@
       if ($scope.page === 1) {
         return $scope.page = 2;
       }
+      if ($scope.page === 2) {
+        return $scope.page = 3;
+      }
       return $scope.page = 1;
     };
     $scope.wowTimes = ['x', new Date()];
@@ -397,9 +399,69 @@
       'light-purple': "#0E4EAD",
       'light-warm-gray': "#0B108C"
     };
+    fireBaseUrl = "https://sizzling-torch-5381.firebaseio.com/";
+    firebaseRef = new Firebase(fireBaseUrl);
+    firebaseSolidTasks = firebaseRef.child("solid-tasks");
+    sortSolidTasks = function() {
+      var compare;
+      compare = function(a, b) {
+        if (a.order < b.order) {
+          return -1;
+        }
+        if (a.order > b.order) {
+          return 1;
+        }
+        return 0;
+      };
+      return $scope.solidTasks = $scope.solidTasks.sort(compare);
+    };
+    $scope.addSolidTask = function() {
+      var item;
+      item = {
+        task: $scope.newSolidTask.task,
+        rating: $scope.newSolidTask.rating
+      };
+      return firebaseRef.child("solid-tasks").push(item);
+    };
+    $scope.removeSolidTask = function(id) {
+      $scope.solidTasks = $filter("filter")($scope.solidTasks, {
+        id: "!" + id
+      });
+      return firebaseSolidTasks.child(id).remove();
+    };
+    initializeSolidTasks = function() {
+      var name;
+      $scope.solidTasks = [];
+      $scope.newSolidTask = {};
+      name = "solid-tasks";
+      firebaseSolidTasks.on("child_added", function(snapshot) {
+        var id, item;
+        id = snapshot.key();
+        item = snapshot.val();
+        item["id"] = id;
+        $scope.solidTasks.push(item);
+        return sortSolidTasks();
+      });
+      return $scope.dragControlListeners = {
+        orderChanged: function(event) {
+          var i, k, len, order, ref, task, updates;
+          console.log(event);
+          updates = {};
+          i = 0;
+          ref = $scope.solidTasks;
+          for (k = 0, len = ref.length; k < len; k++) {
+            task = ref[k];
+            order = task.id + "/order";
+            updates[order] = i;
+            i++;
+          }
+          return firebaseSolidTasks.update(updates);
+        }
+      };
+    };
     init = function() {
-      initializeTaskRotator();
-      return generateInitialWowMeter();
+      $scope.loaded = true;
+      return initializeSolidTasks();
     };
     init();
     return $socket.on('heartbeat', function(data) {
@@ -408,14 +470,14 @@
     });
   };
 
-  mainController.$inject = ['$scope', '$timeout', '$socket', 'InsightFactory'];
+  mainController.$inject = ["$scope", "$timeout", "$socket", "$filter", "InsightFactory"];
 
-  angular.module('insight').controller('mainController', mainController);
+  angular.module("insight").controller("mainController", mainController);
 
   InsightFactory = function($http) {
     var getInitialWowCounts, projects, projectsWithTasks, tasks;
     projects = function() {
-      return $http.get('/projects');
+      return $http.get("/projects");
     };
     tasks = function(projectId) {
       return $http.get('/tasks/' + projectId);

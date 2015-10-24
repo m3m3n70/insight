@@ -5,6 +5,8 @@ server = require("http").Server(app)
 io = require("socket.io")(server)
 asana = require("asana")
 fs = require("fs")
+Firebase = require("firebase")
+
 
 # Config
 
@@ -14,6 +16,13 @@ wowTagId = 57545435627264
 deadTagId = 57545435627266
 
 heartbeatDelay = 60000
+
+# Firebase config
+firebaseUrl = "https://sizzling-torch-5381.firebaseio.com/"
+myFirebaseRef =  new Firebase(firebaseUrl)
+
+
+
 
 # wowTagId = 57532266416864
 # deadTagId = 56967458494204
@@ -264,7 +273,8 @@ heartbeat = (res) ->
   client.projects.findByWorkspace(workspaceId).then projectsCallback
 
 
-setupHeartbeatEmitter()
+# TODO: uncomment when we want to listen
+# setupHeartbeatEmitter()
 
 app.use express.static(__dirname + "/public")
 

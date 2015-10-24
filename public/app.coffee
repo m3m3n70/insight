@@ -1,16 +1,17 @@
-app = angular.module('insight', [
-  'socket.io'
-  'ngAnimate'
+app = angular.module("insight", [
+  "socket.io"
+  "ngAnimate"
+  "as.sortable"
 ])
 
 app.config ($socketProvider) ->
-  url = '/'
+  url = "/"
   if window.location.host.match(/localhost/)
     url = 'http://localhost:8000'
   $socketProvider.setConnectionUrl url
 
 # TODO: move to another file
-mainController = ($scope, $timeout, $socket, InsightFactory) ->
+mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
   shuffle = (o) ->
     i = o.length
@@ -103,7 +104,7 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
   generateInitialWowMeter = () ->
     # console.log $scope.wowTimes
     InsightFactory.getInitialWowCounts().then (data) ->
-      console.log(data.data)
+      # console.log(data.data)
       rows = processCsv(data.data)
       $scope.wowTimes = rows.map (a) ->
         x = new Date(0)
@@ -309,8 +310,8 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
   $scope.page = 1
 
   $scope.togglePage = () ->
-    if $scope.page == 1
-      return $scope.page = 2
+    return $scope.page = 2 if $scope.page == 1
+    return $scope.page = 3 if $scope.page == 2
     $scope.page = 1
 
   $scope.wowTimes =  ['x', new Date()]
@@ -337,11 +338,93 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
     'light-purple':   "#0E4EAD" # '#e4b5f5'
     'light-warm-gray':"#0B108C" # '#e9aab1'
 
+  fireBaseUrl = "https://sizzling-torch-5381.firebaseio.com/"
+  firebaseRef = new Firebase(fireBaseUrl)
+  firebaseSolidTasks = firebaseRef.child("solid-tasks")
+
+  sortSolidTasks = () ->
+
+    compare = (a, b) ->
+      if a.order < b.order
+        return -1
+      if a.order > b.order
+        return 1
+      0
+
+    $scope.solidTasks = $scope.solidTasks.sort compare
+
+  $scope.addSolidTask = () ->
+    # TODO
+    item = {
+      task: $scope.newSolidTask.task
+      rating: $scope.newSolidTask.rating
+    }
+    # console.log(item)
+    #   task: $("#new-solid-task").val()
+    #   rating: $("#new-solid-task-rating").val()
+    firebaseRef.child("solid-tasks").push item
+    # $scope.solidTasks.push(item)
+
+  $scope.removeSolidTask = (id) ->
+    $scope.solidTasks = $filter("filter")($scope.solidTasks, {id: "!#{id}"})
+    firebaseSolidTasks.child(id).remove()
+
+  initializeSolidTasks = () ->
+    $scope.solidTasks = []
+    $scope.newSolidTask = {}
+    name = "solid-tasks"
+    firebaseSolidTasks.on "child_added", (snapshot) ->
+      id = snapshot.key()
+      item = snapshot.val()
+      item["id"] = id
+      # console.log(item)
+      $scope.solidTasks.push(item)
+      sortSolidTasks()
+      # task = snapshot.val()
+      # item = $("<li>").text("#{task.task} (#{task.rating})")
+      # item.addClass("rating-#{task.rating}")
+      # item.attr "id", snapshot.name()
+      # $("#solidTasks").append item
+
+      # input = $("<input type"text" />")
+      # input.attr "id", "input-#{snapshot.name()}"
+
+
+      # firebaseSolidTasks.on "child_removed", (snapshot) ->
+      #   id = snapshot.val().name()
+      #   $scope.solidTasks = $filter("filter")($scope.solidTasks, {name: "!#{id}"})
+      #   sortSolidTasks()
+
+    $scope.dragControlListeners =
+      orderChanged: (event) ->
+        console.log(event)
+        updates = {}
+        i = 0
+        for task in $scope.solidTasks
+          order = "#{task.id}/order"
+          updates[order] = i
+          i++
+
+        firebaseSolidTasks.update(updates)
+
+
+
+      # accept: (sourceItemHandleScope, destSortableScope) ->
+      # itemMoved: (event) -> console.log(event)
+      # clone: true
+      # containment: '#board'
+
+
+
+
+
+
 
   init = () ->
-
-    initializeTaskRotator()
-    generateInitialWowMeter()
+    $scope.loaded = true
+    # initializeTaskRotator()
+    # generateInitialWowMeter()
+    initializeSolidTasks()
 
   init()
 
@@ -350,19 +433,20 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
     updateOnHeartbeat data
 
 mainController.$inject = [
-  '$scope'
-  '$timeout'
-  '$socket'
-  'InsightFactory'
+  "$scope"
+  "$timeout"
+  "$socket"
+  "$filter"
+  "InsightFactory"
 ]
-angular.module('insight').controller 'mainController', mainController
+angular.module("insight").controller "mainController", mainController
 # TODO: move to another file
 # Currently unused since we have one socket that just listens for heartbeats
 
 InsightFactory = ($http) ->
 
   projects = ->
-    $http.get '/projects'
+    $http.get "/projects"
 
   tasks = (projectId) ->
     $http.get '/tasks/' + projectId
