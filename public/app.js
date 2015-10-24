@@ -133,8 +133,6 @@
           return a[1];
         });
         $scope.wowCounts.unshift("Wows");
-        console.log($scope.wowTimes);
-        console.log($scope.wowCounts);
         bindTo = "#wow-chart";
         chart = c3.generate({
           bindto: bindTo,

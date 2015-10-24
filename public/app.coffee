@@ -114,8 +114,8 @@ mainController = ($scope, $timeout, $socket, InsightFactory) ->
       $scope.wowCounts = rows.map((a) -> a[1])
       $scope.wowCounts.unshift "Wows"
 
-      console.log($scope.wowTimes)
-      console.log($scope.wowCounts)
+      # console.log($scope.wowTimes)
+      # console.log($scope.wowCounts)
 
       # var utcSeconds = 1234567890;
       # var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
