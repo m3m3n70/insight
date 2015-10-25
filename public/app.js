@@ -78,13 +78,13 @@
           axis: {
             x: {
               type: 'timeseries',
-              localtime: false,
+              localtime: true,
               tick: {
                 format: '%H:%M',
                 multiline: false,
                 rotate: 75,
                 culling: {
-                  max: 10
+                  max: 20
                 }
               }
             }
