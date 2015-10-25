@@ -27,21 +27,8 @@
           <img src="images/ripple.svg" />
         </div>
 
-
-
-        <ul id="solid-tasks-display" data-ng-model="solidTasks">
-          <li
-              class="task-card rating-{{ theTask.rating | lowercase}}"
-              ng-repeat="theTask in solidTasks"
-              data-task-id="{{ theTask.id }}">
-            <div class="display">
-              <h2>
-                {{ theTask.rating }} - {{theTask.task}}
-              </h2>
-            </div>
-          </li>
-        </ul>
-
+        <task-list-display obj="solidTaskList"></task-list-display>
+        <task-list-display obj="riskAreaList"></task-list-display>
 
         <div class="row pies" id="pies-1" ng-show="loaded">
 
@@ -97,7 +84,6 @@
 
         <task-list-edit obj="solidTaskList"></task-list-edit>
         <task-list-edit obj="riskAreaList"></task-list-edit>
-
       </div>
 
     </div>

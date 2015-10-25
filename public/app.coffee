@@ -480,6 +480,23 @@ taskListEdit.$inject = [
 
 angular.module("insight").directive "taskListEdit", taskListEdit
 
+taskListDisplay = ($timeout) ->
+  restrict: "E"
+  templateUrl: "templates/task-list-display.html"
+  replace: true
+  scope: {
+    obj: "="
+  }
+  link: ($scope, elem, attrs) ->
+    $timeout ->
+      # console.log($scope.obj)
+      # Do stuff
+
+taskListDisplay.$inject = [
+  "$timeout"
+]
+
+angular.module("insight").directive "taskListDisplay", taskListDisplay
 
 
 
