@@ -340,15 +340,22 @@ h2.timer{
 
 .task-list-display{
   float: left;
-  width: 30%;
-  margin-right:3%;
+  width: 31%;
+  margin-right:2%;
+}
+
+.task-list-display:last-child{
+  margin-right: 0;
 }
 
 #all-tasks{
   float: left;
-  width: 30%;
-  margin-right:3%;
+  margin-left: 1%;
+  width: 32%;
+  margin-right:2%;
 }
+
+
 
 #all-tasks ul{
   padding: 0;
