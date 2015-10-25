@@ -123,7 +123,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
         axis: x:
           type: 'timeseries'
-          localtime: true
+          localtime: false
           tick:
             format: '%H:%M'
             multiline:false
