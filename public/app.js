@@ -15,7 +15,7 @@
 
   mainController = function($scope, $timeout, $socket, $filter, InsightFactory) {
     var asanaColors, conditionallyAddTask, fireBaseUrl, firebaseRef, generateAllTasks, generateCardForTeam, generateCardsForTeams, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeCountdown, initializeMisc, initializeTaskRotator, initializeTasks, miscQuestionMapping, processCsv, shuffle, teamIds, updateOnHeartbeat;
-    teamIds = [52963906013475, 57010700420933, 57010700420935, 57010700420937, 57010700420939];
+    teamIds = [52963906013475, 57010700420933, 57010700420935, 57010700420937, 57010700420939, 57010700420942];
     miscQuestionMapping = {
       "52963906013475": "team1title",
       "57010700420933": "team2title",
@@ -366,7 +366,6 @@
     updateOnHeartbeat = function(heartbeat) {
       var teams;
       teams = heartbeat.teams;
-      console.log(teams);
       $scope.teams = teams;
       generateWowMeterForTeams(teams);
       return generateAllTasks(teams);
@@ -615,7 +614,7 @@
       });
     };
     init = function() {
-      $scope.loaded = true;
+      $scope.loaded = false;
       initializeTaskRotator();
       generateInitialWowMeter();
       initializeTasks($scope.solidTaskList);

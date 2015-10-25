@@ -19,6 +19,8 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     57010700420935
     57010700420937
     57010700420939
+    57010700420942
+
   ]
 
   miscQuestionMapping = {
@@ -373,7 +375,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
   updateOnHeartbeat = (heartbeat) ->
     teams = heartbeat.teams
-    console.log(teams)
+    # console.log(teams)
     $scope.teams = teams
     # generateChartsForTeams teams
     generateWowMeterForTeams teams
@@ -597,7 +599,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
 
   init = () ->
-    $scope.loaded = true
+    $scope.loaded = false
     initializeTaskRotator()
     generateInitialWowMeter()
     initializeTasks($scope.solidTaskList)
