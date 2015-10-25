@@ -404,7 +404,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
   initializeMisc = () ->
     $scope.misc = {}
-    $scope.misc.question = (projectId) ->
+    $scope.questionMap = (projectId) ->
       $scope.misc[miscQuestionMapping[projectId]]
 
     firebaseId = "misc"
@@ -576,6 +576,7 @@ teamCard = ($timeout) ->
   scope: {
     team: "="
     misc: "="
+    questionMap: "="
   }
   link: ($scope, elem, attrs) ->
     $timeout ->

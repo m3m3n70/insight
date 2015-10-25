@@ -382,7 +382,7 @@
     initializeMisc = function() {
       var firebaseId, firebaseMisc;
       $scope.misc = {};
-      $scope.misc.question = function(projectId) {
+      $scope.questionMap = function(projectId) {
         return $scope.misc[miscQuestionMapping[projectId]];
       };
       firebaseId = "misc";
@@ -555,7 +555,8 @@
       replace: true,
       scope: {
         team: "=",
-        misc: "="
+        misc: "=",
+        questionMap: "="
       },
       link: function($scope, elem, attrs) {
         return $timeout(function() {});
