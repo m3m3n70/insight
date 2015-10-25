@@ -340,108 +340,108 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
   fireBaseUrl = "https://sizzling-torch-5381.firebaseio.com/"
   firebaseRef = new Firebase(fireBaseUrl)
-  firebaseSolidTasks = firebaseRef.child("solid-tasks")
 
-  sortSolidTasks = () ->
-    compare = (a, b) ->
-      if a.order < b.order
-        return -1
-      if a.order > b.order
-        return 1
-      0
-    $scope.solidTasks = $scope.solidTasks.sort compare
+  $scope.solidTaskList = {
+    firebaseId: "solid-tasks"
+    taskList: []
+    newModel: {}
+    title: "Solid Tasks"
+  }
 
-  $scope.addSolidTask = () ->
-    # TODO
-    item = {
-      task: $scope.newSolidTask.task
-      rating: $scope.newSolidTask.rating
-      order: 9999
-    }
-    # console.log(item)
-    #   task: $("#new-solid-task").val()
-    #   rating: $("#new-solid-task-rating").val()
-    firebaseRef.child("solid-tasks").push item
-    # $scope.solidTasks.push(item)
+  $scope.riskAreaList = {
+    firebaseId: "risk-areas"
+    taskList: []
+    newModel: {}
+    title: "Risk Areas"
+  }
 
-  $scope.removeSolidTask = (task) ->
-    id = task.id
-    $scope.solidTasks = $filter("filter")($scope.solidTasks, {id: "!#{id}"})
-    firebaseSolidTasks.child(id).remove()
 
-  $scope.editSolidTask = (task) ->
-    id = task.id
-    $("#solid-#{id} .display").hide()
-    $("#solid-#{id} .edit").show()
+  initializeTasks = (obj) ->
+    firebaseId = obj.firebaseId
+    firebaseTasks = firebaseRef.child(firebaseId)
 
-  $scope.saveSolidTask = (task) ->
-    id = task.id
-    # $("#solid-#{id} .display").show()
-    # $("#solid-#{id} .edit").hide()
+    obj.sortTasks = () ->
+      compare = (a, b) ->
+        if a.order < b.order
+          return -1
+        if a.order > b.order
+          return 1
+        0
+      obj.taskList = obj.taskList.sort compare
 
-    item = {
-      task: task.task
-      rating: task.rating
-      order: task.order
-    }
+    obj.addTask = () ->
+      # TODO
+      item = {
+        task: obj.newModel.task
+        rating: obj.newModel.rating
+        order: 9999
+      }
+      firebaseRef.child(firebaseId).push item
 
-    firebaseSolidTasks.update("#{id}": item)
+    obj.removeTask = (task) ->
+      id = task.id
+      obj.taskList = $filter("filter")(obj.taskList, {id: "!#{id}"})
+      firebaseTasks.child(id).remove()
 
-  initializeSolidTasks = () ->
-    $scope.solidTasks = []
-    $scope.newSolidTask = {}
-    name = "solid-tasks"
-    firebaseSolidTasks.on "child_added", (snapshot) ->
+    obj.saveTask = (task) ->
+      id = task.id
+      # $("#solid-#{id} .display").show()
+      # $("#solid-#{id} .edit").hide()
+
+      item = {
+        task: task.task
+        rating: task.rating
+        order: task.order
+      }
+
+      firebaseTasks.update("#{id}": item)
+
+    name = firebaseId
+    firebaseTasks.on "child_added", (snapshot) ->
+      id = snapshot.key()
+      item = snapshot.val()
+      item["id"] = id
+      $timeout ->
+        obj.taskList.push(item)
+        obj.sortTasks()
+
+    firebaseTasks.on "child_removed", (snapshot) ->
+      $timeout ->
+        id = snapshot.key()
+        obj.taskList = $filter("filter")(obj.taskList, {id: "!#{id}"})
+        obj.sortTasks()
+
+    firebaseTasks.on "child_changed", (snapshot) ->
       $timeout ->
         id = snapshot.key()
         item = snapshot.val()
-        item["id"] = id
         # console.log(item)
-        $scope.solidTasks.push(item)
-        sortSolidTasks()
-      # task = snapshot.val()
-      # item = $("<li>").text("#{task.task} (#{task.rating})")
-      # item.addClass("rating-#{task.rating}")
-      # item.attr "id", snapshot.name()
-      # $("#solidTasks").append item
-
-      # input = $("<input type"text" />")
-      # input.attr "id", "input-#{snapshot.name()}"
-
-
-    firebaseSolidTasks.on "child_removed", (snapshot) ->
-      $timeout ->
-        id = snapshot.key()
-        $scope.solidTasks = $filter("filter")($scope.solidTasks, {id: "!#{id}"})
-        sortSolidTasks()
-
-    firebaseSolidTasks.on "child_changed", (snapshot) ->
-      $timeout ->
-        id = snapshot.key()
-        item = snapshot.val()
-        console.log(item)
-        $scope.solidTasks = $filter("filter")($scope.solidTasks, {id: "!#{id}"})
+        obj.taskList = $filter("filter")(obj.taskList, {id: "!#{id}"})
         item["id"] = id
-        $scope.solidTasks.push(item)
-        sortSolidTasks()
+        obj.taskList.push(item)
+        obj.sortTasks()
 
-    $scope.dragControlListeners =
+    obj.dragControlListeners =
       orderChanged: (event) ->
-        console.log(event)
+        # console.log(event)
         updates = {}
         i = 0
-        for task in $scope.solidTasks
+        for task in obj.taskList
           order = "#{task.id}/order"
           updates[order] = i
           i++
 
-        firebaseSolidTasks.update(updates)
+        firebaseTasks.update(updates)
+
+
 
   init = () ->
     $scope.loaded = true
     # initializeTaskRotator()
     # generateInitialWowMeter()
-    initializeSolidTasks()
+    # initializeSolidTasks()
+    initializeTasks($scope.solidTaskList)
+    initializeTasks($scope.riskAreaList)
 
   init()
 
@@ -459,6 +459,29 @@ mainController.$inject = [
 angular.module("insight").controller "mainController", mainController
 # TODO: move to another file
 # Currently unused since we have one socket that just listens for heartbeats
+
+
+
+taskListEdit = ($timeout) ->
+  restrict: "E"
+  templateUrl: "templates/task-list-edit.html"
+  replace: true
+  scope: {
+    obj: "="
+  }
+  link: ($scope, elem, attrs) ->
+    $timeout ->
+      # console.log($scope.obj)
+      # Do stuff
+
+taskListEdit.$inject = [
+  "$timeout"
+]
+
+angular.module("insight").directive "taskListEdit", taskListEdit
+
+
+
 
 InsightFactory = ($http) ->
 

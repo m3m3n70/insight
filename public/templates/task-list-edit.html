@@ -1,0 +1,36 @@
+<div class="row task-list-edit" id="{{ obj.firebaseId }}">
+  <h1>{{obj.title}}</h1>
+  <h2>Add New</h2>
+  <form ng-submit="obj.addTask()">
+    <select ng-model="obj.newModel.rating">
+      <option selected disabled>Confidence</option>
+      <option>Red</option>
+      <option>Yellow</option>
+      <option>Green</option>
+    </select>
+    <input type="text" ng-model="obj.newModel.task"/>
+    <input type="submit" value="Add"/>
+  </form>
+
+  <h2>Edit Existing </h2>
+  <ul class="edit-solid-tasks" data-as-sortable="obj.dragControlListeners" data-ng-model="obj.taskList">
+    <li
+      class="task-card rating-{{ theTask.rating | lowercase}}"
+      ng-repeat="theTask in obj.taskList"
+      id="solid-{{ theTask.id }}"
+      data-task-id="{{ theTask.id }}"
+      data-as-sortable-item>
+      <div class="edit">
+        <a data-as-sortable-item-handle class="reorder"><i class="fa fa-bars"></i></a>
+        <select ng-model="theTask.rating" ng-change="obj.saveTask(theTask)">
+          <option>Red</option>
+          <option>Yellow</option>
+          <option>Green</option>
+        </select>
+        <input type="text" ng-model="theTask.task" ng-blur="obj.saveTask(theTask)"/>
+        <!-- <a ng-click="obj.saveTask(theTask)" class="save"><i class="fa fa-floppy-o"></i></a> -->
+        <a ng-click="obj.removeTask(theTask)" class="remove"><i class="fa fa-times"></i></i></a>
+      </div>
+    </li>
+  </ul>
+</div>

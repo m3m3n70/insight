@@ -231,28 +231,28 @@ li.ng-enter-active {
 
 /* Admin UI */
 
-#page-3 #solid-tasks li{
+#page-3 .task-list-edit li{
   border: none;
   margin-left: 0;
 
 }
 
-#page-3 #solid-tasks select,
-#page-3 #solid-tasks input[type=text]{
+#page-3 .task-list-edit select,
+#page-3 .task-list-edit input[type=text]{
   background: #000;
   color: #fff;
   font-size: 32px;
   border: 1px solid #fff;
 }
 
-#page-3 #solid-tasks li select,
-#page-3 #solid-tasks li input[type=text]{
+#page-3 .task-list-edit li select,
+#page-3 .task-list-edit li input[type=text]{
   background: none;
   color: inherit;
   border: 0;
 }
 
-#page-3 #solid-tasks input[type=text]{
+#page-3 .task-list-edit input[type=text]{
   width: 70%;
 }
 

@@ -94,42 +94,10 @@
         <div class="loader" ng-show="!loaded">
           <img src="images/ripple.svg" />
         </div>
-        <div class="row" id="solid-tasks">
-          <h1>Solid Insights</h1>
-          <h2>Add New</h2>
-          <form ng-submit="addSolidTask()">
-            <select id="new-solid-task-rating" ng-model="newSolidTask.rating">
-              <option selected disabled>Confidence</option>
-              <option>Red</option>
-              <option>Yellow</option>
-              <option>Green</option>
-            </select>
-            <input type="text" id="new-solid-task" ng-model="newSolidTask.task"/>
-            <input type="submit" value="Add"/>
-          </form>
 
-          <h2>Edit Existing</h2>
-          <ul class="edit-solid-tasks" data-as-sortable="dragControlListeners" data-ng-model="solidTasks">
-            <li
-              class="task-card rating-{{ theTask.rating | lowercase}}"
-              ng-repeat="theTask in solidTasks"
-              id="solid-{{ theTask.id }}"
-              data-task-id="{{ theTask.id }}"
-              data-as-sortable-item>
-              <div class="edit">
-                <a data-as-sortable-item-handle class="reorder"><i class="fa fa-bars"></i></a>
-                <select ng-model="theTask.rating" ng-change="saveSolidTask(theTask)">
-                  <option>Red</option>
-                  <option>Yellow</option>
-                  <option>Green</option>
-                </select>
-                <input type="text" ng-model="theTask.task" ng-blur="saveSolidTask(theTask)"/>
-                <!-- <a ng-click="saveSolidTask(theTask)" class="save"><i class="fa fa-floppy-o"></i></a> -->
-                <a ng-click="removeSolidTask(theTask)" class="remove"><i class="fa fa-times"></i></i></a>
-              </div>
-            </li>
-          </ul>
-        </div>
+        <task-list-edit obj="solidTaskList"></task-list-edit>
+        <task-list-edit obj="riskAreaList"></task-list-edit>
+
       </div>
 
     </div>
