@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link href="css/c3/c3.min.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="css/ng-sortable.css">
+    <link rel="stylesheet" type="text/css" href="css/fonts.css">
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
@@ -29,31 +30,27 @@
         </div>
         <insight-header misc="misc"></insight-header>
 
-        <task-list-display obj="solidTaskList"></task-list-display>
-        <task-list-display obj="riskAreaList"></task-list-display>
 
-        <div class="row pies" id="pies-1" ng-show="loaded">
+
+<!--         <div class="row pies" id="pies-1" ng-show="loaded">
 
         </div>
         <div class="row pies" id="pies-2" ng-show="loaded">
+        </div> -->
+
+        <div class="row">
+          <team-card team="teams[0]"></team-card>
+          <team-card team="teams[1]"></team-card>
         </div>
-        <div class="row wow">
-          <div id="wow-chart">
-          </div>
+        <div class="row">
+          <team-card team="teams[2]"></team-card>
+          <div id="wow-chart"></div>
+        </div>
+        <div class="row">
+          <team-card team="teams[3]"></team-card>
+          <team-card team="teams[4]"></team-card>
         </div>
 
-
-        <!--       <div
-                class="project-with-tasks"
-                ng-repeat="project in projectsWithTasks"
-                id="project-{{ project.id }}">
-                <h2>{{ project.name }}</h2>
-                <ul>
-                  <li class="{{ project.cssClass }}" ng-if="task.name.length > 0" ng-repeat="task in project.tasks">
-                    {{ task.name }}
-                  </li>
-                </ul>
-              </div> -->
       </div>
       <div id="page-2" ng-show="page === 2">
         <a class="page-toggle" ng-click="togglePage()"> </a>
@@ -62,6 +59,7 @@
         </div>
         <insight-header misc="misc"></insight-header>
         <div class="row" id="all-tasks">
+          <h2>Learnings <span class="count">{{ allTasks.length }}</span></h2>
           <ul>
             <li
               class="task-card "
@@ -76,6 +74,8 @@
             </li>
           </ul>
         </div>
+        <task-list-display obj="solidTaskList"></task-list-display>
+        <task-list-display obj="riskAreaList"></task-list-display>
       </div>
       <div id="page-3"  ng-show="page === 3">
         <a class="page-toggle" ng-click="togglePage()"> </a>

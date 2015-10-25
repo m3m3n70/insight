@@ -23,7 +23,6 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     o
 
   generateChartForTeam = (team, i) ->
-    `var i`
     $pies = $('#pies-1')
     if i > 2
       $pies = $('#pies-2')
@@ -85,6 +84,31 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
       generateChartForTeam team, i
       i++
     return
+
+  generateCardForTeam = (team, i) ->
+    display_name = team['name']
+
+    $teamChart = $('<div class=\'team team-' + i + '\' id=\'team-' + team['id'] + '\'></div>')
+    $teamChart.append '<h2>' + display_name + '</h2>'
+
+    projects = team['projects']
+    i = 0
+    while i < projects.length
+      project = projects[i]
+      chartData.push [
+        project['name']
+        project['taskCount']
+      ]
+      i++
+
+
+  generateCardsForTeams = (teams) ->
+    i = 0
+    while i < teams.length
+      team = teams[i]
+      totalTaskCount += parseInt(team['taskCount'])
+      generateCardForTeam team, i
+      i++
 
   processCsv = (allText) ->
     allTextLines = allText.split(/\r\n|\n/)
@@ -300,7 +324,9 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
   updateOnHeartbeat = (heartbeat) ->
     teams = heartbeat.teams
-    generateChartsForTeams teams
+    console.log(teams)
+    $scope.teams = teams
+    # generateChartsForTeams teams
     generateWowMeterForTeams teams
     generateAllTasks teams
     # generateGraveyardForTeams teams
@@ -345,7 +371,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     firebaseId: "solid-tasks"
     taskList: []
     newModel: {}
-    title: "Solid Tasks"
+    title: "Solid Insights"
   }
 
   $scope.riskAreaList = {
@@ -462,9 +488,8 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
   init = () ->
     $scope.loaded = true
-    # initializeTaskRotator()
-    # generateInitialWowMeter()
-    # initializeSolidTasks()
+    initializeTaskRotator()
+    generateInitialWowMeter()
     initializeTasks($scope.solidTaskList)
     initializeTasks($scope.riskAreaList)
     initializeMisc()
@@ -542,6 +567,22 @@ insightHeader.$inject = [
 
 angular.module("insight").directive "insightHeader", insightHeader
 
+teamCard = ($timeout) ->
+  restrict: "E"
+  templateUrl: "templates/team-card.html"
+  replace: true
+  scope: {
+    team: "="
+  }
+  link: ($scope, elem, attrs) ->
+    $timeout ->
+      # Do stuff
+
+teamCard.$inject = [
+  "$timeout"
+]
+
+angular.module("insight").directive "teamCard", teamCard
 
 
 

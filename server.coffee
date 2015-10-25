@@ -274,7 +274,7 @@ heartbeat = (res) ->
 
 
 # TODO: uncomment when we want to listen
-# setupHeartbeatEmitter()
+setupHeartbeatEmitter()
 
 app.use express.static(__dirname + "/public")
 
