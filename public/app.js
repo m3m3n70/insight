@@ -372,7 +372,7 @@
       return generateAllTasks(teams);
     };
     $scope.loaded = false;
-    $scope.page = 3;
+    $scope.page = 1;
     $scope.togglePage = function() {
       if ($scope.page === 1) {
         return $scope.page = 2;

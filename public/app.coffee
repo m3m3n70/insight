@@ -382,7 +382,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     # generateWowTasks teams
 
   $scope.loaded = false
-  $scope.page = 3
+  $scope.page = 1
 
   $scope.togglePage = () ->
     return $scope.page = 2 if $scope.page == 1
