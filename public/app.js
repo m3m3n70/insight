@@ -367,7 +367,7 @@
       return generateAllTasks(teams);
     };
     $scope.loaded = false;
-    $scope.page = 1;
+    $scope.page = 3;
     $scope.togglePage = function() {
       if ($scope.page === 1) {
         return $scope.page = 2;
@@ -419,15 +419,38 @@
       var item;
       item = {
         task: $scope.newSolidTask.task,
-        rating: $scope.newSolidTask.rating
+        rating: $scope.newSolidTask.rating,
+        order: 9999
       };
       return firebaseRef.child("solid-tasks").push(item);
     };
-    $scope.removeSolidTask = function(id) {
+    $scope.removeSolidTask = function(task) {
+      var id;
+      id = task.id;
       $scope.solidTasks = $filter("filter")($scope.solidTasks, {
         id: "!" + id
       });
       return firebaseSolidTasks.child(id).remove();
+    };
+    $scope.editSolidTask = function(task) {
+      var id;
+      id = task.id;
+      $("#solid-" + id + " .display").hide();
+      return $("#solid-" + id + " .edit").show();
+    };
+    $scope.saveSolidTask = function(task) {
+      var id, item, obj;
+      id = task.id;
+      item = {
+        task: task.task,
+        rating: task.rating,
+        order: task.order
+      };
+      return firebaseSolidTasks.update((
+        obj = {},
+        obj["" + id] = item,
+        obj
+      ));
     };
     initializeSolidTasks = function() {
       var name;
@@ -435,12 +458,38 @@
       $scope.newSolidTask = {};
       name = "solid-tasks";
       firebaseSolidTasks.on("child_added", function(snapshot) {
-        var id, item;
-        id = snapshot.key();
-        item = snapshot.val();
-        item["id"] = id;
-        $scope.solidTasks.push(item);
-        return sortSolidTasks();
+        return $timeout(function() {
+          var id, item;
+          id = snapshot.key();
+          item = snapshot.val();
+          item["id"] = id;
+          $scope.solidTasks.push(item);
+          return sortSolidTasks();
+        });
+      });
+      firebaseSolidTasks.on("child_removed", function(snapshot) {
+        return $timeout(function() {
+          var id;
+          id = snapshot.key();
+          $scope.solidTasks = $filter("filter")($scope.solidTasks, {
+            id: "!" + id
+          });
+          return sortSolidTasks();
+        });
+      });
+      firebaseSolidTasks.on("child_changed", function(snapshot) {
+        return $timeout(function() {
+          var id, item;
+          id = snapshot.key();
+          item = snapshot.val();
+          console.log(item);
+          $scope.solidTasks = $filter("filter")($scope.solidTasks, {
+            id: "!" + id
+          });
+          item["id"] = id;
+          $scope.solidTasks.push(item);
+          return sortSolidTasks();
+        });
       });
       return $scope.dragControlListeners = {
         orderChanged: function(event) {

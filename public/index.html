@@ -13,6 +13,7 @@
 
     <script src="https://cdn.firebase.com/js/client/2.3.1/firebase.js"></script>
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link href="css/c3/c3.min.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="css/ng-sortable.css">
     <link rel="stylesheet" href="css/style.css" />
@@ -25,6 +26,22 @@
         <div class="loader" ng-show="!loaded">
           <img src="images/ripple.svg" />
         </div>
+
+
+
+        <ul id="solid-tasks-display" data-ng-model="solidTasks">
+          <li
+              class="task-card rating-{{ theTask.rating | lowercase}}"
+              ng-repeat="theTask in solidTasks"
+              data-task-id="{{ theTask.id }}">
+            <div class="display">
+              <h2>
+                {{ theTask.rating }} - {{theTask.task}}
+              </h2>
+            </div>
+          </li>
+        </ul>
+
 
         <div class="row pies" id="pies-1" ng-show="loaded">
 
@@ -78,25 +95,39 @@
           <img src="images/ripple.svg" />
         </div>
         <div class="row" id="solid-tasks">
+          <h1>Solid Insights</h1>
+          <h2>Add New</h2>
           <form ng-submit="addSolidTask()">
+            <select id="new-solid-task-rating" ng-model="newSolidTask.rating">
+              <option selected disabled>Confidence</option>
+              <option>Red</option>
+              <option>Yellow</option>
+              <option>Green</option>
+            </select>
             <input type="text" id="new-solid-task" ng-model="newSolidTask.task"/>
-            <input type="text" id="new-solid-task-rating" ng-model="newSolidTask.rating"/>
-            <input type="submit" value="SUBMIT"/>
+            <input type="submit" value="Add"/>
           </form>
 
-          <ul data-as-sortable="dragControlListeners" data-ng-model="solidTasks">
-             <li
-                class="task-card "
-                ng-repeat="theTask in solidTasks"
-                id="solid-{{ theTask.id }}"
-                data-task-id="{{ theTask.id }}"
-                data-as-sortable-item>
-                <h2 data-as-sortable-item-handle>
-                  {{ theTask.rating }} - {{theTask.task}}
-                </h2>
-                <a ng-click="removeSolidTask(theTask.id)" class="remove">X</a>
-
-             </li>
+          <h2>Edit Existing</h2>
+          <ul class="edit-solid-tasks" data-as-sortable="dragControlListeners" data-ng-model="solidTasks">
+            <li
+              class="task-card rating-{{ theTask.rating | lowercase}}"
+              ng-repeat="theTask in solidTasks"
+              id="solid-{{ theTask.id }}"
+              data-task-id="{{ theTask.id }}"
+              data-as-sortable-item>
+              <div class="edit">
+                <a data-as-sortable-item-handle class="reorder"><i class="fa fa-bars"></i></a>
+                <select ng-model="theTask.rating" ng-change="saveSolidTask(theTask)">
+                  <option>Red</option>
+                  <option>Yellow</option>
+                  <option>Green</option>
+                </select>
+                <input type="text" ng-model="theTask.task" ng-blur="saveSolidTask(theTask)"/>
+                <!-- <a ng-click="saveSolidTask(theTask)" class="save"><i class="fa fa-floppy-o"></i></a> -->
+                <a ng-click="removeSolidTask(theTask)" class="remove"><i class="fa fa-times"></i></i></a>
+              </div>
+            </li>
           </ul>
         </div>
       </div>

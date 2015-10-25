@@ -227,3 +227,66 @@ li.ng-enter-active {
 .css-fade .ng-hide{
   opacity: 0
 }
+
+
+/* Admin UI */
+
+#page-3 #solid-tasks li{
+  border: none;
+  margin-left: 0;
+
+}
+
+#page-3 #solid-tasks select,
+#page-3 #solid-tasks input[type=text]{
+  background: #000;
+  color: #fff;
+  font-size: 32px;
+  border: 1px solid #fff;
+}
+
+#page-3 #solid-tasks li select,
+#page-3 #solid-tasks li input[type=text]{
+  background: none;
+  color: inherit;
+  border: 0;
+}
+
+#page-3 #solid-tasks input[type=text]{
+  width: 70%;
+}
+
+
+.remove{
+  float: right;
+  margin-right: 15px;
+}
+
+.rating-red{
+  background: #DF151A ;
+  border: 0
+}
+
+.rating-yellow{
+  background: #F4F328 ;
+  color: #000;
+  border: 0;
+}
+
+.rating-green{
+  background: #00DA3C ;
+  color: #000;
+  border: 0
+}
+
+
+
+
+
+
+
+
+
+
+
+

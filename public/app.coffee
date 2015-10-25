@@ -307,7 +307,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     # generateWowTasks teams
 
   $scope.loaded = false
-  $scope.page = 1
+  $scope.page = 3
 
   $scope.togglePage = () ->
     return $scope.page = 2 if $scope.page == 1
@@ -343,14 +343,12 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
   firebaseSolidTasks = firebaseRef.child("solid-tasks")
 
   sortSolidTasks = () ->
-
     compare = (a, b) ->
       if a.order < b.order
         return -1
       if a.order > b.order
         return 1
       0
-
     $scope.solidTasks = $scope.solidTasks.sort compare
 
   $scope.addSolidTask = () ->
@@ -358,6 +356,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     item = {
       task: $scope.newSolidTask.task
       rating: $scope.newSolidTask.rating
+      order: 9999
     }
     # console.log(item)
     #   task: $("#new-solid-task").val()
@@ -365,21 +364,41 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     firebaseRef.child("solid-tasks").push item
     # $scope.solidTasks.push(item)
 
-  $scope.removeSolidTask = (id) ->
+  $scope.removeSolidTask = (task) ->
+    id = task.id
     $scope.solidTasks = $filter("filter")($scope.solidTasks, {id: "!#{id}"})
     firebaseSolidTasks.child(id).remove()
+
+  $scope.editSolidTask = (task) ->
+    id = task.id
+    $("#solid-#{id} .display").hide()
+    $("#solid-#{id} .edit").show()
+
+  $scope.saveSolidTask = (task) ->
+    id = task.id
+    # $("#solid-#{id} .display").show()
+    # $("#solid-#{id} .edit").hide()
+
+    item = {
+      task: task.task
+      rating: task.rating
+      order: task.order
+    }
+
+    firebaseSolidTasks.update("#{id}": item)
 
   initializeSolidTasks = () ->
     $scope.solidTasks = []
     $scope.newSolidTask = {}
     name = "solid-tasks"
     firebaseSolidTasks.on "child_added", (snapshot) ->
-      id = snapshot.key()
-      item = snapshot.val()
-      item["id"] = id
-      # console.log(item)
-      $scope.solidTasks.push(item)
-      sortSolidTasks()
+      $timeout ->
+        id = snapshot.key()
+        item = snapshot.val()
+        item["id"] = id
+        # console.log(item)
+        $scope.solidTasks.push(item)
+        sortSolidTasks()
       # task = snapshot.val()
       # item = $("<li>").text("#{task.task} (#{task.rating})")
       # item.addClass("rating-#{task.rating}")
@@ -390,10 +409,21 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
       # input.attr "id", "input-#{snapshot.name()}"
 
 
-      # firebaseSolidTasks.on "child_removed", (snapshot) ->
-      #   id = snapshot.val().name()
-      #   $scope.solidTasks = $filter("filter")($scope.solidTasks, {name: "!#{id}"})
-      #   sortSolidTasks()
+    firebaseSolidTasks.on "child_removed", (snapshot) ->
+      $timeout ->
+        id = snapshot.key()
+        $scope.solidTasks = $filter("filter")($scope.solidTasks, {id: "!#{id}"})
+        sortSolidTasks()
+
+    firebaseSolidTasks.on "child_changed", (snapshot) ->
+      $timeout ->
+        id = snapshot.key()
+        item = snapshot.val()
+        console.log(item)
+        $scope.solidTasks = $filter("filter")($scope.solidTasks, {id: "!#{id}"})
+        item["id"] = id
+        $scope.solidTasks.push(item)
+        sortSolidTasks()
 
     $scope.dragControlListeners =
       orderChanged: (event) ->
@@ -406,19 +436,6 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
           i++
 
         firebaseSolidTasks.update(updates)
-
-
-
-      # accept: (sourceItemHandleScope, destSortableScope) ->
-      # itemMoved: (event) -> console.log(event)
-      # clone: true
-      # containment: '#board'
-
-
-
-
-
-
 
   init = () ->
     $scope.loaded = true
