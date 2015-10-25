@@ -13,6 +13,25 @@ app.config ($socketProvider) ->
 # TODO: move to another file
 mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
+  teamIds = [
+    52963906013475
+    57010700420933
+    57010700420935
+    57010700420937
+    57010700420939
+  ]
+
+  miscQuestionMapping = {
+    "52963906013475": "team1title"
+    "57010700420933": "team2title"
+    "57010700420935": "team3title"
+    "57010700420937": "team4title"
+    "57010700420939": "team5title"
+  }
+
+
+
+
   shuffle = (o) ->
     i = o.length
     while i
@@ -91,15 +110,19 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     $teamChart = $('<div class=\'team team-' + i + '\' id=\'team-' + team['id'] + '\'></div>')
     $teamChart.append '<h2>' + display_name + '</h2>'
 
-    projects = team['projects']
-    i = 0
-    while i < projects.length
-      project = projects[i]
-      chartData.push [
-        project['name']
-        project['taskCount']
-      ]
-      i++
+    #     <p>{{ team.wowTasks[team.wowTasks.length - 1] }}</p>
+    # <p>{{ team.wowTasks[team.wowTasks.length - 2] }}</p>
+    # <p>{{ team.wowTasks[team.wowTasks.length - 3] }}</p>
+
+    # projects = team['projects']
+    # i = 0
+    # while i < projects.length
+    #   project = projects[i]
+    #   chartData.push [
+    #     project['name']
+    #     project['taskCount']
+    #   ]
+    #   i++
 
 
   generateCardsForTeams = (teams) ->
@@ -125,6 +148,8 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
       i++
     lines
 
+
+  # TODO: rename to validated
   generateInitialWowMeter = () ->
     # console.log $scope.wowTimes
     InsightFactory.getInitialWowCounts().then (data) ->
@@ -149,9 +174,9 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
       bindTo = "#wow-chart"
       chart = c3.generate(
         bindto: bindTo
-        size:
-          height: 640
-          width: 1080
+        # size:
+        #   height: 640
+        #   width: 1080
         data:
           x: "x"
           # xFormat: '%Y-%m-%d %H:%M:%S'
@@ -171,16 +196,17 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
             culling:
               max: 10
         legend:
-          hide: false
+          show: false
       )
       $scope.wowChart = chart
 
+  # TODO: rename to validated
   generateWowMeterForTeams = (teams) ->
     wowCount = 0
     i = 0
     while i < teams.length
       team = teams[i]
-      wowCount += parseInt(team.wowTasks.length)
+      wowCount += parseInt(team.validatedCount)
       i++
 
     $scope.wowTimes.push(new Date())
@@ -283,31 +309,54 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     if $scope.allTasks.length > 0
       firstTime = false
     for team in teams
-      do (team) ->
-        if team.wowTasks
-          for task in team.wowTasks
-            do (task) ->
-              task.wow = true
-              conditionallyAddTask(team, task)
-        if team.validatedTasks
-          for task in team.validatedTasks
-            do (task) ->
-              task.validated = true
-              conditionallyAddTask(team, task)
-      projects = team.projects
-      i = 0
-      while i < projects.length
-        project = projects[i]
-        for task in project.tasks
-          do (task) ->
-            conditionallyAddTask(team, task)
-        i++
+      team.validatedTasks = []
+      tasksHash = team.tasksHash
+      keys = Object.keys(tasksHash)
+      vals = keys.map (v) ->
+        task = tasksHash[v]
+        conditionallyAddTask(team, task)
+        team.validatedTasks.push(task) if task.validated
+        task
+
+      compare = (a, b) ->
+        if a.order < b.order
+          return -1
+        if a.order > b.order
+          return 1
+        0
+      team.validatedTasks = team.validatedTasks.sort compare
+      team.validatedTasksSub = team.validatedTasks.splice(-3)
+      team.validatedTasksSub = team.validatedTasksSub.reverse()
+
+
+
+
+      # do (team) ->
+      #   if team.wowTasks
+      #     for task in team.wowTasks
+      #       do (task) ->
+      #         task.wow = true
+      #         conditionallyAddTask(team, task)
+      #   if team.validatedTasks
+      #     for task in team.validatedTasks
+      #       do (task) ->
+      #         task.validated = true
+      #         conditionallyAddTask(team, task)
+      # projects = team.projects
+      # i = 0
+      # while i < projects.length
+      #   project = projects[i]
+      #   for task in project.tasks
+      #     do (task) ->
+      #       conditionallyAddTask(team, task)
+      #   i++
     if firstTime
       shuffle($scope.allTasks)
 
   $scope.taskClass = (task) ->
     return "wow" if task.wow
-    return "validated" if task.validated
+    if task.validated
+      return "validated #{task.confidence}"
     return "dead" if task.dead
     ""
 
@@ -339,6 +388,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     return $scope.page = 2 if $scope.page == 1
     return $scope.page = 3 if $scope.page == 2
     $scope.page = 1
+    return $timeout -> $(window).trigger("resize")
 
   $scope.wowTimes =  ['x', new Date()]
   $scope.wowCounts = ["Wows", 2]
@@ -463,6 +513,9 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
   initializeMisc = () ->
     $scope.misc = {}
+    $scope.misc.question = (projectId) ->
+      $scope.misc[miscQuestionMapping[projectId]]
+
     firebaseId = "misc"
     firebaseMisc = firebaseRef.child(firebaseId)
     firebaseMisc.on "child_changed", (snapshot) ->
@@ -484,6 +537,63 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     firebaseRef.update("#{firebaseId}": $scope.misc)
 
 
+  initializeCountdown = () ->
+    jQuery ->
+
+      timer = new CountDownTimer(5)
+
+      firebaseTime = firebaseRef.child("time")
+
+      firebaseTime.on "child_changed", (snapshot) ->
+        id = snapshot.key()
+        item = snapshot.val()
+        $("#new-time").val(item)
+        resetTimer(item)
+
+      firebaseTime.on "child_added", (snapshot) ->
+        id = snapshot.key()
+        item = snapshot.val()
+        if id == "val"
+          $("#new-time").val(item)
+          resetTimer(item)
+
+
+      resetTimer = (t) ->
+        newTime = $("#new-time").val()
+        $(".timer").removeClass("expired")
+        timer.pause()
+        newTimeParts = newTime.split(":")
+        min = 0
+        sec = 0
+        if newTimeParts.length > 1
+          min = parseInt(newTimeParts[0])
+          sec = parseInt(newTimeParts[1])
+        else
+          sec = parseInt(newTimeParts[1])
+
+        seconds = sec + min * 60
+        timer.setDur(seconds)
+
+        updateDisplay(min, sec)
+        timer.onTick updateDisplay
+        timer.start()
+
+
+      format = (minutes, seconds) ->
+        minutes = if minutes < 10 then "0" + minutes else minutes
+        seconds = if seconds < 10 then "0" + seconds else seconds
+        minutes + ":" + seconds
+
+      updateDisplay = (minutes, seconds) ->
+        $(".timer").text format(minutes, seconds)
+        if this.expired && this.expired()
+          $(".timer").addClass("expired")
+
+
+      $("#reset-timer").on "click", ->
+        newTime = $("#new-time").val()
+        firebaseTime.update({val: newTime})
+
 
 
   init = () ->
@@ -493,6 +603,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     initializeTasks($scope.solidTaskList)
     initializeTasks($scope.riskAreaList)
     initializeMisc()
+    initializeCountdown()
 
   init()
 
@@ -573,6 +684,7 @@ teamCard = ($timeout) ->
   replace: true
   scope: {
     team: "="
+    misc: "="
   }
   link: ($scope, elem, attrs) ->
     $timeout ->

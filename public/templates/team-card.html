@@ -1,8 +1,19 @@
 <div class="team-card" id="team-{{ team.id }}">
-  <h2>{{ team.name }}</h2>
-  <p>{{ team.taskCount }}</p>
-  <p>{{ team.wowTasks.length }}</p>
-  <p>{{ team.wowTasks[team.wowTasks.length - 1] }}</p>
-  <p>{{ team.wowTasks[team.wowTasks.length - 2] }}</p>
-  <p>{{ team.wowTasks[team.wowTasks.length - 3] }}</p>
+  <h2 class="name">{{ team.name }} ({{ team.taskCount }}<span ng-if="team.validatedCount > 0"> > {{ team.validatedCount }}</span>)</h2>
+  <h2 class="question">{{ misc.question(team.id) }}</h2>
+  <ul>
+    <li
+        ng-repeat="theTask in team.validatedTasksSub"
+        class="task-card rating-{{ theTask.rating | lowercase}}"
+        data-task-id="{{ theTask.id }}">
+      <h2>
+        <!-- <span class="rating">{{ theTask.rating }}</span> -  -->
+        {{ theTask.name }}
+      </h2>
+    </li>
+  </ul>
+
 </div>
+
+
+

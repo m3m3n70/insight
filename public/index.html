@@ -9,7 +9,7 @@
     <script src="vendor/c3/c3.min.js"></script>
     <script src="vendor/jquery-1.11.3.min.js"></script>
     <script src="vendor/ng-sortable.js"></script>
-
+    <script src="vendor/countdown-timer.js"></script>
 
     <script src="https://cdn.firebase.com/js/client/2.3.1/firebase.js"></script>
 
@@ -29,26 +29,15 @@
           <img src="images/ripple.svg" />
         </div>
         <insight-header misc="misc"></insight-header>
-
-
-
-<!--         <div class="row pies" id="pies-1" ng-show="loaded">
-
-        </div>
-        <div class="row pies" id="pies-2" ng-show="loaded">
-        </div> -->
-
         <div class="row">
-          <team-card team="teams[0]"></team-card>
-          <team-card team="teams[1]"></team-card>
+          <team-card misc="misc" team="teams[0]"></team-card>
+          <team-card misc="misc" team="teams[1]"></team-card>
+          <team-card misc="misc" team="teams[2]"></team-card>
         </div>
         <div class="row">
-          <team-card team="teams[2]"></team-card>
+          <team-card misc="misc" team="teams[3]"></team-card>
+          <team-card misc="misc" team="teams[4]"></team-card>
           <div id="wow-chart"></div>
-        </div>
-        <div class="row">
-          <team-card team="teams[3]"></team-card>
-          <team-card team="teams[4]"></team-card>
         </div>
 
       </div>
@@ -79,27 +68,29 @@
       </div>
       <div id="page-3"  ng-show="page === 3">
         <a class="page-toggle" ng-click="togglePage()"> </a>
-        <br />
-        <h2>ADMIN UI</h2>
         <div class="loader" ng-show="!loaded">
           <img src="images/ripple.svg" />
         </div>
+        <insight-header misc="misc"></insight-header>
+        <h2>Admin UI</h2>
         <div class="edit-misc">
           <h1>Misc</h1>
-          <form ng-submit="resetTimer()">
-            <li>{{ timer.newTimeLeft }} </li>
-            <li><label>Time:<input type="text" ng-model="timer.newTimeLeft" /> </li>
-            <li></li>
-          </form>
+          <ul>
+            <li>
+              <label>Time:</label>
+              <input type="text" id="new-time" ng-model="timer.newTimeLeft" />
+              <button id="reset-timer">Reset Timer</button>
+            </li>
+          </ul>
           <form ng-submit="saveMisc()">
             <ul>
-              <li><label>Mission Statement: <input type="text" ng-blur="saveMisc()" ng-model="misc.missionStatement" /></label></li>
-              <li><label>Rev Title:         <input type="text" ng-blur="saveMisc()" ng-model="misc.revTitle" /></label></li>
-              <li><label>Team 1:            <input type="text" ng-blur="saveMisc()" ng-model="misc.team1title" /></label></li>
-              <li><label>Team 2:            <input type="text" ng-blur="saveMisc()" ng-model="misc.team2title" /></label></li>
-              <li><label>Team 3:            <input type="text" ng-blur="saveMisc()" ng-model="misc.team3title" /></label></li>
-              <li><label>Team 4:            <input type="text" ng-blur="saveMisc()" ng-model="misc.team4title" /></label></li>
-              <li><label>Team 5:            <input type="text" ng-blur="saveMisc()" ng-model="misc.team5title" /></label></li>
+              <li><label>Mission Statement: </label><input type="text" ng-blur="saveMisc()" ng-model="misc.missionStatement" /></li>
+              <li><label>Rev Title:         </label><input type="text" ng-blur="saveMisc()" ng-model="misc.revTitle" /></li>
+              <li><label>Team 1:            </label><input type="text" ng-blur="saveMisc()" ng-model="misc.team1title" /></li>
+              <li><label>Team 2:            </label><input type="text" ng-blur="saveMisc()" ng-model="misc.team2title" /></li>
+              <li><label>Team 3:            </label><input type="text" ng-blur="saveMisc()" ng-model="misc.team3title" /></li>
+              <li><label>Team 4:            </label><input type="text" ng-blur="saveMisc()" ng-model="misc.team4title" /></li>
+              <li><label>Team 5:            </label><input type="text" ng-blur="saveMisc()" ng-model="misc.team5title" /></li>
             </ul>
           </form>
 

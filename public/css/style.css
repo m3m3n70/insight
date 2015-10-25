@@ -217,6 +217,17 @@ li.ng-enter-active {
   border-left: 10px solid #00DA3C;
 }
 
+.task-card.green{
+  border-left: 10px solid #00DA3C;
+}
+
+.task-card.yellow{
+  border-left: 10px solid #F4F328;
+}
+
+.task-card.red{
+  border-left: 10px solid #DF151A;
+}
 
 .ng-hide-add, .ng-hide-remove{
   display: block !important
@@ -239,8 +250,11 @@ li.ng-enter-active {
 
 }
 
+
 #page-3 .task-list-edit select,
-#page-3 .task-list-edit input[type=text]{
+#page-3 .task-list-edit input[type=text],
+#page-3 .edit-misc input[type=text]
+{
   background: #000;
   color: #fff;
   font-size: 32px;
@@ -254,8 +268,25 @@ li.ng-enter-active {
   border: 0;
 }
 
-#page-3 .task-list-edit input[type=text]{
+#page-3 .task-list-edit input[type=text],
+#page-3 .edit-misc input[type=text]{
   width: 70%;
+}
+
+#page-3 #new-time{
+  width: 200px;
+}
+#page-3 label{
+  width: 300px;
+  display: block; float: left;
+}
+
+#page-3 button, #page-3 input[type=submit]{
+  font-size: 24px;
+  background: #000;
+  border: 1px solid #fff;
+  color: #fff;
+  cursor: pointer
 }
 
 
@@ -296,7 +327,7 @@ h2.rev-title, h2.timer{
 
 h2.timer{
   font-size: 64px;
-  text-align: center;
+  text-align: right;
   padding-top:0;
   margin:0;
   padding-bottom: 0;
@@ -340,9 +371,101 @@ h2 .count {
   float: right;
 }
 
+.timer.expired{
+  color: #DF151A;
+  /*animation: blink 1s steps(5, start) infinite;
+  -webkit-animation: blink 1s steps(5, start) infinite;*/
+}
+
+.team-card, #wow-chart{
+  border: 1px solid #fff;
+  float: left;
+  width: 31%;
+  height: 400px;
+  margin-right: 2%;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+  padding: 15px;
+}
+
+.team-card:first-child{
+  margin-left: 1%;
+}
+
+.team-card:last-child, #wow-chart:last-child{
+  float: right;
+  margin-right: 1%;
+}
+
+#wow-chart{
+  padding:0
+}
 
 
 
+.team-card .question{
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #333;
+  margin-bottom: 10px;
+  height:60px;
+}
+
+
+.team-card .task-counts{
+   float: left;
+   width: 100%;
+   text-align: center;
+   font-size: 32px;
+   margin:0;
+}
+
+/*.team-card .validated-task-count{
+   float: left;
+   font-size: 32px;
+   margin:0;
+}*/
+
+.team-card{
+  overflow-y:hidden;
+}
+
+.team-card ul{
+  float: left;
+  margin:0;
+  width: 100%;
+  padding:0;
+}
+
+.team-card ul li{
+  margin:0;
+  margin-bottom: 10px;
+}
+
+.team-card ul li h2{
+  font-size: 24px;
+}
+
+.team-card .name{
+  margin:0;
+  margin-bottom:15px;
+}
+
+
+
+
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
 
 
 

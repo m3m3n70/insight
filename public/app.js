@@ -14,7 +14,15 @@
   });
 
   mainController = function($scope, $timeout, $socket, $filter, InsightFactory) {
-    var asanaColors, conditionallyAddTask, fireBaseUrl, firebaseRef, generateAllTasks, generateCardForTeam, generateCardsForTeams, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeMisc, initializeTaskRotator, initializeTasks, processCsv, shuffle, updateOnHeartbeat;
+    var asanaColors, conditionallyAddTask, fireBaseUrl, firebaseRef, generateAllTasks, generateCardForTeam, generateCardsForTeams, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeCountdown, initializeMisc, initializeTaskRotator, initializeTasks, miscQuestionMapping, processCsv, shuffle, teamIds, updateOnHeartbeat;
+    teamIds = [52963906013475, 57010700420933, 57010700420935, 57010700420937, 57010700420939];
+    miscQuestionMapping = {
+      "52963906013475": "team1title",
+      "57010700420933": "team2title",
+      "57010700420935": "team3title",
+      "57010700420937": "team4title",
+      "57010700420939": "team5title"
+    };
     shuffle = function(o) {
       var i, j, x;
       i = o.length;
@@ -99,19 +107,10 @@
       }
     };
     generateCardForTeam = function(team, i) {
-      var $teamChart, display_name, project, projects, results;
+      var $teamChart, display_name;
       display_name = team['name'];
       $teamChart = $('<div class=\'team team-' + i + '\' id=\'team-' + team['id'] + '\'></div>');
-      $teamChart.append('<h2>' + display_name + '</h2>');
-      projects = team['projects'];
-      i = 0;
-      results = [];
-      while (i < projects.length) {
-        project = projects[i];
-        chartData.push([project['name'], project['taskCount']]);
-        results.push(i++);
-      }
-      return results;
+      return $teamChart.append('<h2>' + display_name + '</h2>');
     };
     generateCardsForTeams = function(teams) {
       var i, results, team;
@@ -161,10 +160,6 @@
         bindTo = "#wow-chart";
         chart = c3.generate({
           bindto: bindTo,
-          size: {
-            height: 640,
-            width: 1080
-          },
           data: {
             x: "x",
             columns: [$scope.wowTimes, $scope.wowCounts],
@@ -184,7 +179,7 @@
             }
           },
           legend: {
-            hide: false
+            show: false
           }
         });
         return $scope.wowChart = chart;
@@ -196,7 +191,7 @@
       i = 0;
       while (i < teams.length) {
         team = teams[i];
-        wowCount += parseInt(team.wowTasks.length);
+        wowCount += parseInt(team.validatedCount);
         i++;
       }
       $scope.wowTimes.push(new Date());
@@ -300,54 +295,37 @@
     $scope.allTaskIds = {};
     $scope.allTasks = [];
     generateAllTasks = function(teams) {
-      var firstTime, fn, fn1, i, k, l, len, len1, project, projects, ref, task, team;
+      var compare, firstTime, k, keys, len, tasksHash, team, vals;
       firstTime = true;
       if ($scope.allTasks.length > 0) {
         firstTime = false;
       }
-      fn = function(team) {
-        var fn1, l, len1, len2, m, ref, ref1, results, task;
-        if (team.wowTasks) {
-          ref = team.wowTasks;
-          fn1 = function(task) {
-            task.wow = true;
-            return conditionallyAddTask(team, task);
-          };
-          for (l = 0, len1 = ref.length; l < len1; l++) {
-            task = ref[l];
-            fn1(task);
-          }
-        }
-        if (team.validatedTasks) {
-          ref1 = team.validatedTasks;
-          results = [];
-          for (m = 0, len2 = ref1.length; m < len2; m++) {
-            task = ref1[m];
-            results.push((function(task) {
-              task.validated = true;
-              return conditionallyAddTask(team, task);
-            })(task));
-          }
-          return results;
-        }
-      };
       for (k = 0, len = teams.length; k < len; k++) {
         team = teams[k];
-        fn(team);
-        projects = team.projects;
-        i = 0;
-        while (i < projects.length) {
-          project = projects[i];
-          ref = project.tasks;
-          fn1 = function(task) {
-            return conditionallyAddTask(team, task);
-          };
-          for (l = 0, len1 = ref.length; l < len1; l++) {
-            task = ref[l];
-            fn1(task);
+        team.validatedTasks = [];
+        tasksHash = team.tasksHash;
+        keys = Object.keys(tasksHash);
+        vals = keys.map(function(v) {
+          var task;
+          task = tasksHash[v];
+          conditionallyAddTask(team, task);
+          if (task.validated) {
+            team.validatedTasks.push(task);
           }
-          i++;
-        }
+          return task;
+        });
+        compare = function(a, b) {
+          if (a.order < b.order) {
+            return -1;
+          }
+          if (a.order > b.order) {
+            return 1;
+          }
+          return 0;
+        };
+        team.validatedTasks = team.validatedTasks.sort(compare);
+        team.validatedTasksSub = team.validatedTasks.splice(-3);
+        team.validatedTasksSub = team.validatedTasksSub.reverse();
       }
       if (firstTime) {
         return shuffle($scope.allTasks);
@@ -358,7 +336,7 @@
         return "wow";
       }
       if (task.validated) {
-        return "validated";
+        return "validated " + task.confidence;
       }
       if (task.dead) {
         return "dead";
@@ -402,7 +380,10 @@
       if ($scope.page === 2) {
         return $scope.page = 3;
       }
-      return $scope.page = 1;
+      $scope.page = 1;
+      return $timeout(function() {
+        return $(window).trigger("resize");
+      });
     };
     $scope.wowTimes = ['x', new Date()];
     $scope.wowCounts = ["Wows", 2];
@@ -541,6 +522,9 @@
     initializeMisc = function() {
       var firebaseId, firebaseMisc;
       $scope.misc = {};
+      $scope.misc.question = function(projectId) {
+        return $scope.misc[miscQuestionMapping[projectId]];
+      };
       firebaseId = "misc";
       firebaseMisc = firebaseRef.child(firebaseId);
       firebaseMisc.on("child_changed", function(snapshot) {
@@ -569,13 +553,75 @@
         obj1
       ));
     };
+    initializeCountdown = function() {
+      return jQuery(function() {
+        var firebaseTime, format, resetTimer, timer, updateDisplay;
+        timer = new CountDownTimer(5);
+        firebaseTime = firebaseRef.child("time");
+        firebaseTime.on("child_changed", function(snapshot) {
+          var id, item;
+          id = snapshot.key();
+          item = snapshot.val();
+          $("#new-time").val(item);
+          return resetTimer(item);
+        });
+        firebaseTime.on("child_added", function(snapshot) {
+          var id, item;
+          id = snapshot.key();
+          item = snapshot.val();
+          if (id === "val") {
+            $("#new-time").val(item);
+            return resetTimer(item);
+          }
+        });
+        resetTimer = function(t) {
+          var min, newTime, newTimeParts, sec, seconds;
+          newTime = $("#new-time").val();
+          $(".timer").removeClass("expired");
+          timer.pause();
+          newTimeParts = newTime.split(":");
+          min = 0;
+          sec = 0;
+          if (newTimeParts.length > 1) {
+            min = parseInt(newTimeParts[0]);
+            sec = parseInt(newTimeParts[1]);
+          } else {
+            sec = parseInt(newTimeParts[1]);
+          }
+          seconds = sec + min * 60;
+          timer.setDur(seconds);
+          updateDisplay(min, sec);
+          timer.onTick(updateDisplay);
+          return timer.start();
+        };
+        format = function(minutes, seconds) {
+          minutes = minutes < 10 ? "0" + minutes : minutes;
+          seconds = seconds < 10 ? "0" + seconds : seconds;
+          return minutes + ":" + seconds;
+        };
+        updateDisplay = function(minutes, seconds) {
+          $(".timer").text(format(minutes, seconds));
+          if (this.expired && this.expired()) {
+            return $(".timer").addClass("expired");
+          }
+        };
+        return $("#reset-timer").on("click", function() {
+          var newTime;
+          newTime = $("#new-time").val();
+          return firebaseTime.update({
+            val: newTime
+          });
+        });
+      });
+    };
     init = function() {
       $scope.loaded = true;
       initializeTaskRotator();
       generateInitialWowMeter();
       initializeTasks($scope.solidTaskList);
       initializeTasks($scope.riskAreaList);
-      return initializeMisc();
+      initializeMisc();
+      return initializeCountdown();
     };
     init();
     return $socket.on('heartbeat', function(data) {
@@ -648,7 +694,8 @@
       templateUrl: "templates/team-card.html",
       replace: true,
       scope: {
-        team: "="
+        team: "=",
+        misc: "="
       },
       link: function($scope, elem, attrs) {
         return $timeout(function() {});
