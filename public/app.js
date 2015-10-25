@@ -197,7 +197,7 @@
         return "wow";
       }
       if (task.validated) {
-        return "validated " + task.confidence;
+        return "validated " + task.rating;
       }
       if (task.dead) {
         return "dead";

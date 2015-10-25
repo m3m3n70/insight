@@ -15,7 +15,7 @@ workspaceId = 20868448192120 # fact0ry organization workspace
 wowTagId = 57545435627264
 deadTagId = 57545435627266
 
-heartbeatDelay = 60000
+heartbeatDelay = 30000
 
 # Firebase config
 firebaseUrl = "https://sizzling-torch-5381.firebaseio.com/"

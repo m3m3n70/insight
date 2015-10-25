@@ -246,7 +246,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
   $scope.taskClass = (task) ->
     return "wow" if task.wow
     if task.validated
-      return "validated #{task.confidence}"
+      return "validated #{task.rating}"
     return "dead" if task.dead
     ""
 
