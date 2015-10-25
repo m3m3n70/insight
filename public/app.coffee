@@ -435,6 +435,31 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
 
 
+  initializeMisc = () ->
+    $scope.misc = {}
+    firebaseId = "misc"
+    firebaseMisc = firebaseRef.child(firebaseId)
+    firebaseMisc.on "child_changed", (snapshot) ->
+      $timeout ->
+        id = snapshot.key()
+        item = snapshot.val()
+        # console.log(item)
+        $scope.misc[id] = item
+
+    firebaseMisc.on "child_added", (snapshot) ->
+      id = snapshot.key()
+      item = snapshot.val()
+      $timeout ->
+        $scope.misc[id] = item
+
+
+  $scope.saveMisc = () ->
+    firebaseId = "misc"
+    firebaseRef.update("#{firebaseId}": $scope.misc)
+
+
+
+
   init = () ->
     $scope.loaded = true
     # initializeTaskRotator()
@@ -442,6 +467,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     # initializeSolidTasks()
     initializeTasks($scope.solidTaskList)
     initializeTasks($scope.riskAreaList)
+    initializeMisc()
 
   init()
 
@@ -497,6 +523,25 @@ taskListDisplay.$inject = [
 ]
 
 angular.module("insight").directive "taskListDisplay", taskListDisplay
+
+insightHeader = ($timeout) ->
+  restrict: "E"
+  templateUrl: "templates/insight-header.html"
+  replace: false
+  scope: {
+    misc: "="
+  }
+
+  link: ($scope, elem, attrs) ->
+    $timeout ->
+      # Do stuff
+
+insightHeader.$inject = [
+  "$timeout"
+]
+
+angular.module("insight").directive "insightHeader", insightHeader
+
 
 
 

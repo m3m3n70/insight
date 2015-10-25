@@ -279,6 +279,31 @@ li.ng-enter-active {
   border: 0
 }
 
+h1.mission-statement{
+  width: 100%;
+  text-align: center;
+}
+
+h2.rev-title, h2.timer{
+  width: 50%;
+  float: left;
+  text-align: left;
+  box-sizing: border-box;
+  padding: 15px;
+}
+
+h2.timer{
+  font-size: 64px;
+  text-align: center;
+  padding-top:0;
+  margin:0;
+  padding-bottom: 0;
+}
+
+.subheader{
+  float:left;
+  width: 100%;
+}
 
 
 
