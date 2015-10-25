@@ -28,18 +28,19 @@
         <div class="loader" ng-show="!loaded">
           <img src="images/ripple.svg" />
         </div>
-        <insight-header misc="misc"></insight-header>
-        <div class="row">
-          <team-card misc="misc" team="teams[0]"></team-card>
-          <team-card misc="misc" team="teams[1]"></team-card>
-          <team-card misc="misc" team="teams[2]"></team-card>
+        <div class="content" ng-show="loaded">
+          <insight-header misc="misc"></insight-header>
+          <div class="row">
+            <team-card misc="misc" team="teams[0]"></team-card>
+            <team-card misc="misc" team="teams[1]"></team-card>
+            <team-card misc="misc" team="teams[2]"></team-card>
+          </div>
+          <div class="row">
+            <team-card misc="misc" team="teams[3]"></team-card>
+            <team-card misc="misc" team="teams[4]"></team-card>
+            <div id="wow-chart"></div>
+          </div>
         </div>
-        <div class="row">
-          <team-card misc="misc" team="teams[3]"></team-card>
-          <team-card misc="misc" team="teams[4]"></team-card>
-          <div id="wow-chart"></div>
-        </div>
-
       </div>
       <div id="page-2" ng-show="page === 2">
         <a class="page-toggle" ng-click="togglePage()"> </a>

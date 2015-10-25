@@ -14,7 +14,7 @@
   });
 
   mainController = function($scope, $timeout, $socket, $filter, InsightFactory) {
-    var asanaColors, conditionallyAddTask, fireBaseUrl, firebaseRef, generateAllTasks, generateCardForTeam, generateCardsForTeams, generateChartForTeam, generateChartsForTeams, generateGraveyardForTeams, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeCountdown, initializeMisc, initializeTaskRotator, initializeTasks, miscQuestionMapping, processCsv, shuffle, teamIds, updateOnHeartbeat;
+    var asanaColors, conditionallyAddTask, fireBaseUrl, firebaseRef, generateAllTasks, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeCountdown, initializeMisc, initializeTaskRotator, initializeTasks, miscQuestionMapping, processCsv, shuffle, teamIds, updateOnHeartbeat;
     teamIds = [52963906013475, 57010700420933, 57010700420935, 57010700420937, 57010700420939, 57010700420942];
     miscQuestionMapping = {
       "52963906013475": "team1title",
@@ -33,96 +33,6 @@
         o[j] = x;
       }
       return o;
-    };
-    generateChartForTeam = function(team, i) {
-      var $pies, $teamChart, $teamChartOld, bindTo, chart, chartColors, chartData, display_name, project, projects;
-      $pies = $('#pies-1');
-      if (i > 2) {
-        $pies = $('#pies-2');
-      }
-      display_name = team['name'];
-      $teamChart = $('<div class=\'team team-' + i + '\' id=\'team-' + team['id'] + '\'></div>');
-      $teamChart.append('<h2>' + display_name + '</h2>');
-      $teamChart.append('<div class=\'pie-chart\'></div>');
-      $teamChartOld = $pies.find('#team-' + team['id']);
-      if ($teamChartOld.length === 0) {
-        $pies.append($teamChart);
-      } else {
-        $teamChartOld.replaceWith($teamChart);
-      }
-      chartData = [];
-      chartColors = {};
-      projects = team['projects'];
-      i = 0;
-      while (i < projects.length) {
-        project = projects[i];
-        chartData.push([project['name'], project['taskCount']]);
-        chartColors[project['name']] = asanaColors[project['color']];
-        i++;
-      }
-      bindTo = '#team-' + team['id'] + ' .pie-chart';
-      chart = c3.generate({
-        bindto: bindTo,
-        size: {
-          height: team.diameter,
-          width: team.diameter
-        },
-        pie: {
-          label: {
-            format: function(value, ratio, id) {
-              return value;
-            }
-          }
-        },
-        data: {
-          columns: chartData,
-          colors: chartColors,
-          type: 'pie'
-        },
-        legend: {
-          hide: true
-        }
-      });
-      team.chart = chart;
-      return chart;
-    };
-    generateChartsForTeams = function(teams) {
-      var diameter, i, maxWidth, team, totalTaskCount;
-      maxWidth = 1800.0;
-      totalTaskCount = 0.0;
-      diameter = void 0;
-      i = 0;
-      while (i < teams.length) {
-        team = teams[i];
-        totalTaskCount += parseInt(team['taskCount']);
-        i++;
-      }
-      i = 0;
-      while (i < teams.length) {
-        team = teams[i];
-        diameter = parseInt(team['taskCount']) / totalTaskCount * maxWidth;
-        team.diameter = diameter;
-        generateChartForTeam(team, i);
-        i++;
-      }
-    };
-    generateCardForTeam = function(team, i) {
-      var $teamChart, display_name;
-      display_name = team['name'];
-      $teamChart = $('<div class=\'team team-' + i + '\' id=\'team-' + team['id'] + '\'></div>');
-      return $teamChart.append('<h2>' + display_name + '</h2>');
-    };
-    generateCardsForTeams = function(teams) {
-      var i, results, team;
-      i = 0;
-      results = [];
-      while (i < teams.length) {
-        team = teams[i];
-        totalTaskCount += parseInt(team['taskCount']);
-        generateCardForTeam(team, i);
-        results.push(i++);
-      }
-      return results;
     };
     processCsv = function(allText) {
       var allTextLines, data, i, j, lines, tarr;
@@ -200,55 +110,6 @@
         columns: [$scope.wowTimes, $scope.wowCounts]
       };
       return $scope.wowChart.load(chartData);
-    };
-    generateGraveyardForTeams = function(teams) {
-      var $graveyard, $img, deadTasks, fn, i, k, left, len, maxX, maxY, results, team, top;
-      deadTasks = [];
-      fn = function(team) {
-        return deadTasks = deadTasks.concat(team.deadTasks);
-      };
-      for (k = 0, len = teams.length; k < len; k++) {
-        team = teams[k];
-        fn(team);
-      }
-      $graveyard = $('#graveyard');
-      $('#graveyard').empty();
-      maxX = 900;
-      maxY = 450;
-      left = 0;
-      top = 0;
-      i = 0;
-      while (i < deadTasks.length) {
-        left = Math.floor(Math.random() * maxX / 95) * 95;
-        top = Math.floor(Math.random() * maxY / 150) * 150;
-        $img = $('<img src=\'images/grave2.png\' width=100 title=\'' + deadTasks[i].name + '\' />');
-        $img.css({
-          left: left,
-          bottom: top
-        });
-        $('#graveyard').append($img);
-        i++;
-      }
-      $graveyard = $('#graveyard');
-      $('#graveyard').empty();
-      maxX = 900;
-      maxY = 450;
-      left = 0;
-      top = 0;
-      i = 0;
-      results = [];
-      while (i < deadTasks.length) {
-        left = Math.floor(Math.random() * maxX / 95) * 95;
-        top = Math.floor(Math.random() * maxY / 150) * 150;
-        $img = $('<img src=\'images/grave2.png\' width=100 title=\'' + deadTasks[i].name + '\' />');
-        $img.css({
-          left: left,
-          bottom: top
-        });
-        $('#graveyard').append($img);
-        results.push(i++);
-      }
-      return results;
     };
     $scope.wowTaskIds = {};
     $scope.wowTasks = [];

@@ -310,6 +310,15 @@ heartbeat = (res) ->
     keys = Object.keys(ret)
     vals = keys.map (v) -> ret[v]
 
+    compare = (a, b) ->
+      if a.name < b.name
+        return -1
+      if a.name > b.name
+        return 1
+      0
+
+    vals = vals.sort compare
+
     cur = {
       teams: vals
     }
