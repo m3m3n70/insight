@@ -15,13 +15,13 @@
 
   mainController = function($scope, $timeout, $socket, $filter, InsightFactory) {
     var asanaColors, conditionallyAddTask, fireBaseUrl, firebaseRef, generateAllTasks, generateInitialWowMeter, generateWowMeterForTeams, generateWowTasks, init, initializeCountdown, initializeMisc, initializeTaskRotator, initializeTasks, miscQuestionMapping, processCsv, shuffle, teamIds, updateOnHeartbeat;
-    teamIds = [52963906013475, 57010700420933, 57010700420935, 57010700420937, 57010700420939, 57010700420942];
+    teamIds = [60701423699181, 60701423699183, 60701423699185, 60701423699187, 60701423699189];
     miscQuestionMapping = {
-      "52963906013475": "team1title",
-      "57010700420933": "team2title",
-      "57010700420935": "team3title",
-      "57010700420937": "team4title",
-      "57010700420939": "team5title"
+      "60701423699181": "team1title",
+      "60701423699183": "team2title",
+      "60701423699185": "team3title",
+      "60701423699187": "team4title",
+      "60701423699189": "team5title"
     };
     shuffle = function(o) {
       var i, j, x;
@@ -470,7 +470,11 @@
           var newTime;
           newTime = $("#new-time").val();
           return firebaseTime.update({
-            val: newTime
+            val: null
+          }, function() {
+            return firebaseTime.update({
+              val: newTime
+            });
           });
         });
       });

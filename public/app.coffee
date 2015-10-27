@@ -14,20 +14,19 @@ app.config ($socketProvider) ->
 mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
   teamIds = [
-    52963906013475
-    57010700420933
-    57010700420935
-    57010700420937
-    57010700420939
-    57010700420942
+    60701423699181
+    60701423699183
+    60701423699185
+    60701423699187
+    60701423699189
   ]
 
   miscQuestionMapping = {
-    "52963906013475": "team1title"
-    "57010700420933": "team2title"
-    "57010700420935": "team3title"
-    "57010700420937": "team4title"
-    "57010700420939": "team5title"
+    "60701423699181": "team1title"
+    "60701423699183": "team2title"
+    "60701423699185": "team3title"
+    "60701423699187": "team4title"
+    "60701423699189": "team5title"
   }
 
   shuffle = (o) ->
@@ -484,7 +483,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
 
       $("#reset-timer").on "click", ->
         newTime = $("#new-time").val()
-        firebaseTime.update({val: newTime})
+        firebaseTime.update({val: null}, () -> firebaseTime.update({val: newTime}))
 
 
 

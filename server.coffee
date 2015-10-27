@@ -12,8 +12,15 @@ Firebase = require("firebase")
 
 apiKey = "gbNGGU78.LoEgfkUIdCHOOxCQoI8Mm3R"
 workspaceId = 20868448192120 # fact0ry organization workspace
-wowTagId = 57545435627264
-deadTagId = 57545435627266
+# wowTagId = 57545435627264
+# deadTagId = 57545435627266
+
+validatedTagId = 61101326856187
+redTagId       = 61101326856210
+yellowTagId    = 61101326856215
+greenTagId     = 61101326856220
+
+
 
 heartbeatDelay = 30000
 
@@ -24,16 +31,17 @@ myFirebaseRef =  new Firebase(firebaseUrl)
 
 
 
-wowTagId       = 57532266416864
-deadTagId      = 56967458494204
-validatedTagId = 60712069729657
-redTagId       = 60712069729677
-yellowTagId    = 60712069729679
-greenTagId     = 60712069729681
 
-apiKey = "gFjQNCw.qpqlr3z4wwsFMBYCm5FPvjkH"
-projectId = 52963906013475
-workspaceId = 52963906013474
+# wowTagId       = 57532266416864
+# deadTagId      = 56967458494204
+# validatedTagId = 60712069729657
+# redTagId       = 60712069729677
+# yellowTagId    = 60712069729679
+# greenTagId     = 60712069729681
+
+# apiKey = "gFjQNCw.qpqlr3z4wwsFMBYCm5FPvjkH"
+# projectId = 52963906013475
+# workspaceId = 52963906013474
 
 
 # Hardcoded for Nike, but will be able to pull from asana in the future
@@ -126,20 +134,29 @@ teamIds = [
 ]
 
 
+# These are dummy data from KJ's account
+# projectIds = [
+#   60711844335784
+#   60711844335786
+#   60711844335788
+#   60711844335790
+#   60711844335792
+# ]
+
+# Hardcoded for Cisco
+teamId = 59388416160829
+
 projectIds = [
-  60711844335784
-  60711844335786
-  60711844335788
-  60711844335790
-  60711844335792
+  60701423699181
+  60701423699183
+  60701423699185
+  60701423699187
+  60701423699189
 ]
 
-
-
-
-
-
-
+ignoreProjectIds = [
+  59996830669742
+]
 
 
 client = asana.Client.create().useBasicAuth(apiKey)
@@ -203,15 +220,16 @@ heartbeat = (res) ->
     projectsHash = {}
     for proj in projs
       do (proj) ->
-        i++
         id = proj.id
+        return if ignoreProjectIds.indexOf(id) > -1
+        i++
         setTimeout ->
           client.projects.findById(id).then (response) ->
             projects.push(response)
             projectsHash[id] = response
             count++
             # Only return once all the async calls have completed
-            if count == projs.length
+            if count == (projs.length - ignoreProjectIds.length)
               findTasks(projects, projectsHash, ret)
         , i * 250
 
@@ -301,11 +319,6 @@ heartbeat = (res) ->
       # console.log 'The "data to append" was appended to file!'
     buildEmitResponse(projectsHash)
 
-
-
-
-
-
   buildEmitResponse = (ret) ->
     keys = Object.keys(ret)
     vals = keys.map (v) -> ret[v]
@@ -331,8 +344,10 @@ heartbeat = (res) ->
     console.log("Sent heartbeat")
     console.log(new Date())
 
-  client.projects.findByWorkspace(workspaceId).then projectsCallback
+  # client.projects.findByWorkspace(workspaceId).then projectsCallback
 
+  console.log teamId
+  client.projects.findByTeam(teamId).then projectsCallback
 
 # TODO: uncomment when we want to listen
 setupHeartbeatEmitter()
