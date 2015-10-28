@@ -22,7 +22,7 @@ greenTagId     = 61101326856220
 
 
 
-heartbeatDelay = 30000
+heartbeatDelay = 60000
 
 # Firebase config
 firebaseUrl = "https://sizzling-torch-5381.firebaseio.com/"
@@ -44,94 +44,6 @@ myFirebaseRef =  new Firebase(firebaseUrl)
 # workspaceId = 52963906013474
 
 
-# Hardcoded for Nike, but will be able to pull from asana in the future
-teams = {
-  56815679044828: {
-    id: "56815679044828"
-    name: "Invite & Join"
-    # name: "Nike Team #1 - Invite & Join"
-    projects: []
-    ignoreProjectIds: [
-      57753556680343
-      57753556680345
-      57753556680363
-    ]
-    wowProjectId: 57753556680345
-    validatedProjectId: 57753556680343
-    deadProjectId: 57753556680363
-    taskCount: 0
-  }
-  56815685307709: {
-    id: "56815685307709"
-    name: "Do More, Do Better"
-    # name: "Nike Team #2 - Do More, Do Better"
-    projects: []
-    ignoreProjectIds: [
-      57753556680347
-      57753556680349
-      57753556680365
-    ]
-    wowProjectId: 57753556680349
-    validatedProjectId: 57753556680347
-    deadProjectId: 57753556680365
-    taskCount: 0
-  }
-  56815679044829: {
-    id: "56815679044829"
-    name: "Inside Access"
-    # name: "Nike Team #3 - Inside Access"
-    projects: []
-    ignoreProjectIds: [
-      57753556680351
-      57753556680353
-      57753556680367
-    ]
-    wowProjectId: 57753556680353
-    validatedProjectId: 57753556680351
-    deadProjectId: 57753556680367
-    taskCount: 0
-  }
-  56815679044830: {
-    id: "56815679044830"
-    name: "Elevate the Athlete"
-    # name: "Nike Team #4 - Elevate the Athlete"
-    projects: []
-    ignoreProjectIds: [
-      57753556680355
-      57753556680357
-      57753556680371
-    ]
-    wowProjectId: 57753556680357
-    validatedProjectId: 57753556680355
-    deadProjectId: 57753556680371
-    taskCount: 0
-  }
-  56909588915212: {
-    id: "56909588915212",
-    name: "Command Center"
-    # name: "Nike Team #5 - Command Center"
-    projects: []
-
-    ignoreProjectIds: [
-      57753556680359
-      57753556680361
-      57753556680373
-    ]
-    wowProjectId: 57753556680361
-    validatedProjectId: 57753556680359
-    deadProjectId: 57753556680373
-    taskCount: 0
-  }
-}
-
-# Hardcoded for Nike, but will be able to pull from asana in the future
-teamIds = [
-  56815685307709
-  56815679044828
-  56815679044829
-  56815679044830
-  56909588915212
-]
 
 
 # These are dummy data from KJ's account
@@ -214,7 +126,7 @@ heartbeat = (res) ->
     projs = response.data
     count = 0
     # Get the full project objects to get the color of the project
-    ret = JSON.parse(JSON.stringify(teams)) # hardcoded for now, clone it!
+    ret = {} # JSON.parse(JSON.stringify(teams)) # hardcoded for now, clone it!
     i = 0
     projects = []
     projectsHash = {}
@@ -278,6 +190,7 @@ heartbeat = (res) ->
             count++
             for taggedTask in taggedTasks
               t = allTasks[taggedTask.id]
+              continue unless t
               proj = projectsHash[t.projectId]
 
               if tagId == validatedTagId
@@ -346,7 +259,7 @@ heartbeat = (res) ->
 
   # client.projects.findByWorkspace(workspaceId).then projectsCallback
 
-  console.log teamId
+  # console.log teamId
   client.projects.findByTeam(teamId).then projectsCallback
 
 # TODO: uncomment when we want to listen

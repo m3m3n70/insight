@@ -47,9 +47,9 @@
         <div class="loader" ng-show="!loaded">
           <img src="images/ripple.svg" />
         </div>
-        <insight-header misc="misc"></insight-header>
+       <!--  <insight-header misc="misc"></insight-header> -->
         <div class="row" id="all-tasks">
-          <h2>Learnings <span class="count">{{ allTasks.length }}</span></h2>
+          <h2 class="list-title">Learnings <span class="count">{{ allTasks.length }}</span></h2>
           <ul>
             <li
               class="task-card "
@@ -58,9 +58,9 @@
               ng-if="theTask.task.name.length > 0"
               ng-repeat="theTask in allTasks">
               <h2>
-                {{theTask.teamName}}
+                {{::theTask.teamName}}
               </h2>
-              <p>{{ theTask.task.name }}</p>
+              <p>{{ ::theTask.task.name }}</p>
             </li>
           </ul>
         </div>

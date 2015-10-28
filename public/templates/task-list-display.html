@@ -1,13 +1,13 @@
 <div class="task-list-display" id="{{ obj.firebaseId }}-display">
-  <h2>{{ obj.title }} <span class="count">{{ obj.taskList.length }}</span></h2>
+  <h2 class="list-title">{{ obj.title }} <span class="count">{{ obj.taskList.length }}</span></h2>
   <ul data-ng-model="obj.taskList">
     <li
         ng-repeat="theTask in obj.taskList"
-        class="task-card rating-{{ theTask.rating | lowercase}}"
-        data-task-id="{{ theTask.id }}">
+        class="task-card rating-{{ ::theTask.rating | lowercase}}"
+        data-task-id="{{ ::theTask.id }}">
       <h2>
         <!-- <span class="rating">{{ theTask.rating }}</span> -  -->
-        {{ theTask.task }}
+        {{ ::theTask.task }}
       </h2>
     </li>
   </ul>

@@ -8,7 +8,7 @@
     var url;
     url = "/";
     if (window.location.host.match(/localhost/)) {
-      url = 'http://localhost:8000';
+      url = 'http://localhost:8080';
     }
     return $socketProvider.setConnectionUrl(url);
   });
@@ -166,6 +166,9 @@
         team = teams[k];
         team.validatedTasks = [];
         tasksHash = team.tasksHash;
+        if (!tasksHash) {
+          continue;
+        }
         keys = Object.keys(tasksHash);
         vals = keys.map(function(v) {
           var task;

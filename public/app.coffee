@@ -7,7 +7,7 @@ app = angular.module("insight", [
 app.config ($socketProvider) ->
   url = "/"
   if window.location.host.match(/localhost/)
-    url = 'http://localhost:8000'
+    url = 'http://localhost:8080'
   $socketProvider.setConnectionUrl url
 
 # TODO: move to another file
@@ -201,6 +201,7 @@ mainController = ($scope, $timeout, $socket, $filter, InsightFactory) ->
     for team in teams
       team.validatedTasks = []
       tasksHash = team.tasksHash
+      continue unless tasksHash
       keys = Object.keys(tasksHash)
       vals = keys.map (v) ->
         task = tasksHash[v]

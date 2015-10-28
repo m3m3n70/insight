@@ -1,5 +1,6 @@
 <div class="team-card" id="team-{{ team.id }}">
-  <h2 class="name">{{ team.name }} ({{ team.taskCount }}<span ng-if="team.validatedCount > 0"> > {{ team.validatedCount }}</span>)</h2>
+  <h2 class="name">{{ team.name.substring(0, team.name.length - 5) }}</h2>
+  <h2 class="learnings-count">{{ team.taskCount }}<span ng-if="team.validatedCount > 0"> > {{ team.validatedCount }}</span></h2>
   <h2 class="question">{{ questionMap(team.id) }}</h2>
   <ul>
     <li
